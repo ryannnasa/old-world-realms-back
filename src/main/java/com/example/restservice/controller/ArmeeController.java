@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 public class ArmeeController {
-
+// Yeah
     @CrossOrigin(origins = "*")
     @GetMapping("/armee")
     public List<Armee> getArmees() {
