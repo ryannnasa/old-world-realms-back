@@ -1,3 +1,5 @@
+package com.example.restservice.model;
+
 public class UnitType {
     private int idUnitType;
     private String unitTypeName;

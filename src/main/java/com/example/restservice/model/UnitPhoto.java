@@ -1,11 +1,13 @@
-public class unitPhoto {
+package com.example.restservice.model;
+
+public class UnitPhoto {
     private int idUnitPhoto;
     private String unitPhotoName;
     private int idPrincipalUnitName;
 
-    public unitPhoto() {}
+    public UnitPhoto() {}
 
-    public unitPhoto(int idUnitPhoto, String unitPhotoName, int idPrincipalUnitName) {
+    public UnitPhoto(int idUnitPhoto, String unitPhotoName, int idPrincipalUnitName) {
         this.idPrincipalUnitName = idPrincipalUnitName;
         this.idUnitPhoto = idUnitPhoto;
         this.unitPhotoName = unitPhotoName;

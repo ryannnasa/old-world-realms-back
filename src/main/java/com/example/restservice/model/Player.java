@@ -1,3 +1,5 @@
+package com.example.restservice.model;
+
 public class Player {
     private int idPlayer;
     private String playerName;

@@ -1,3 +1,5 @@
+package com.example.restservice.model;
+
 public class Scenario {
     private int idScenario;
     private String scenarioName;
