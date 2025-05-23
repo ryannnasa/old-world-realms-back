@@ -6,19 +6,19 @@ public class TroopType {
     private String figurinesByRank;
     private String maxRankBonus;
     private String unitPowerPerFigurine;
-    private int idMainTroopType;
+    private int mainTroopType_idMainTroopType;
 
     public TroopType() {
     }
 
     public TroopType(int idTroopType, String troopTypeName, String figurinesByRank,
-                     String maxRankBonus, String unitPowerPerFigurine, int idMainTroopType) {
+                     String maxRankBonus, String unitPowerPerFigurine, int mainTroopType_idMainTroopType) {
         this.idTroopType = idTroopType;
         this.troopTypeName = troopTypeName;
         this.figurinesByRank = figurinesByRank;
         this.maxRankBonus = maxRankBonus;
         this.unitPowerPerFigurine = unitPowerPerFigurine;
-        this.idMainTroopType = idMainTroopType;
+        this.mainTroopType_idMainTroopType = mainTroopType_idMainTroopType;
     }
 
     public int getIdTroopType() { return idTroopType; }
@@ -36,6 +36,6 @@ public class TroopType {
     public String getUnitPowerPerFigurine() { return unitPowerPerFigurine; }
     public void setUnitPowerPerFigurine(String unitPowerPerFigurine) { this.unitPowerPerFigurine = unitPowerPerFigurine; }
 
-    public int getIdMainTroopType() { return idMainTroopType; }
-    public void setIdMainTroopType(int idMainTroopType) { this.idMainTroopType = idMainTroopType; }
+    public int getMainTroopType_idMainTroopType() { return mainTroopType_idMainTroopType; }
+    public void setMainTroopType_idMainTroopType(int mainTroopType_idMainTroopType) { this.mainTroopType_idMainTroopType = mainTroopType_idMainTroopType; }
 }

@@ -4,16 +4,16 @@ public class PrincipalUnitName {
     private int idPrincipalUnitName;
     private String principalUnitName;
     private String unitSize;
-    private int idTroopType;
+    private int troopType_idTroopType;
 
     public PrincipalUnitName() {
     }
 
-    public PrincipalUnitName(int idPrincipalUnitName, String PrincipalUnitName, String unitSize, int idTroopType) {
+    public PrincipalUnitName(int idPrincipalUnitName, String PrincipalUnitName, String unitSize, int troopType_idTroopType) {
         this.idPrincipalUnitName = idPrincipalUnitName;
         this.principalUnitName = PrincipalUnitName;
         this.unitSize = unitSize;
-        this.idTroopType = idTroopType;
+        this.troopType_idTroopType = troopType_idTroopType;
     }
 
     public int getIdPrincipalUnitName() { return idPrincipalUnitName; }
@@ -25,6 +25,6 @@ public class PrincipalUnitName {
     public String getUnitSize() { return unitSize; }
     public void setUnitSize(String unitSize) { this.unitSize = unitSize; }
 
-    public int getIdTroopType() { return idTroopType; }
-    public void setIdTroopType(int idTroopType) { this.idTroopType = idTroopType; }
+    public int getTroopType_idTroopType() { return troopType_idTroopType; }
+    public void setTroopType_idTroopType(int troopType_idTroopType) { this.troopType_idTroopType = troopType_idTroopType; }
 }

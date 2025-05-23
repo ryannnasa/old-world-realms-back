@@ -3,41 +3,41 @@ package com.example.restservice.model;
 public class MountedUnitPhoto {
     private int idMountedUnitPhoto;
     private String nameOfMountedUnitPhoto;
-    private int idMount;
-    private int idUnit;
-    private int idMountRule;
-    private int idMountedUnit;
-    private int idMountDescription;
+    private int mountUnit_mount_idMount;
+    private int mountUnit_unit_idUnit;
+    private int mountUnit_mountRule_idMountRule;
+    private int mountUnit_Unit_idMountedUnit;
+    private int mountUnit_idMountDescription;
 
     public MountedUnitPhoto() {}
 
-    public MountedUnitPhoto(int idMountedUnitPhoto, String nameOfMountedUnitPhoto, int idMount, int idUnit, int idMountRule, int idMountedUnit, int idMountDescription) {
-        this.idMount = idMount;
-        this.idMountDescription = idMountDescription;
-        this.idMountedUnit = idMountedUnit;
-        this.idUnit = idUnit;
-        this.idMountRule = idMountRule;
+    public MountedUnitPhoto(int idMountedUnitPhoto, String nameOfMountedUnitPhoto, int mountUnit_mount_idMount, int mountUnit_unit_idUnit, int mountUnit_mountRule_idMountRule, int mountUnit_Unit_idMountedUnit, int idMountDescription) {
+        this.mountUnit_mount_idMount = mountUnit_mount_idMount;
+        this.mountUnit_idMountDescription = idMountDescription;
+        this.mountUnit_Unit_idMountedUnit = mountUnit_Unit_idMountedUnit;
+        this.mountUnit_unit_idUnit = mountUnit_unit_idUnit;
+        this.mountUnit_mountRule_idMountRule = mountUnit_mountRule_idMountRule;
         this.idMountedUnitPhoto = idMountedUnitPhoto;
         this.nameOfMountedUnitPhoto = nameOfMountedUnitPhoto;
     }
 
-    public int getIdMount() {return idMount;}
-    public void setIdMount(int idMount) {this.idMount = idMount;}
+    public int getMountUnit_mount_idMount() {return mountUnit_mount_idMount;}
+    public void setMountUnit_mount_idMount(int mountUnit_mount_idMount) {this.mountUnit_mount_idMount = mountUnit_mount_idMount;}
 
     public int getIdMountedUnitPhoto() {return idMountedUnitPhoto;}
     public void setIdMountedUnitPhoto(int idMountedUnitPhoto) {this.idMountedUnitPhoto = idMountedUnitPhoto;}
 
-    public int getIdMountedUnit() {return idMountedUnit;}
-    public void setIdMountedUnit(int idMountedUnit) {this.idMountedUnit = idMountedUnit;}
+    public int getMountUnit_Unit_idMountedUnit() {return mountUnit_Unit_idMountedUnit;}
+    public void setMountUnit_Unit_idMountedUnit(int mountUnit_Unit_idMountedUnit) {this.mountUnit_Unit_idMountedUnit = mountUnit_Unit_idMountedUnit;}
 
-    public int getIdUnit() {return idUnit;}
-    public void setIdUnit(int idUnit) {this.idUnit = idUnit;}
+    public int getMountUnit_unit_idUnit() {return mountUnit_unit_idUnit;}
+    public void setMountUnit_unit_idUnit(int mountUnit_unit_idUnit) {this.mountUnit_unit_idUnit = mountUnit_unit_idUnit;}
 
-    public int getIdMountDescription() {return idMountDescription;}
-    public void setIdMountDescription(int idMountDescription) {this.idMountDescription = idMountDescription;}
+    public int getMountUnit_idMountDescription() {return mountUnit_idMountDescription;}
+    public void setMountUnit_idMountDescription(int mountUnit_idMountDescription) {this.mountUnit_idMountDescription = mountUnit_idMountDescription;}
 
-    public int getIdMountRule() {return idMountRule;}
-    public void setIdMountRule(int idMountRule) {this.idMountRule = idMountRule;}
+    public int getMountUnit_mountRule_idMountRule() {return mountUnit_mountRule_idMountRule;}
+    public void setMountUnit_mountRule_idMountRule(int mountUnit_mountRule_idMountRule) {this.mountUnit_mountRule_idMountRule = mountUnit_mountRule_idMountRule;}
 
     public String getNameOfMountedUnitPhoto() {return nameOfMountedUnitPhoto;}
     public void setNameOfMountedUnitPhoto(String nameOfMountedUnitPhoto) {this.nameOfMountedUnitPhoto = nameOfMountedUnitPhoto;}

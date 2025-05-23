@@ -1,51 +1,51 @@
 package com.example.restservice.model;
 
 public class PointsTypeHasMountUnit {
-    private int idMount;
-    private int idMountedUnit;
-    private int idUnit;
-    private int idMountRule;
-    private int idMountDescription;
-    private int idPointsType;
+    private int mountUnit_mount_idMount;
+    private int mountUnit_unit_idMountedUnit;
+    private int mountUnit_unit_idUnit;
+    private int mountUnit_mountRule_idMountRule;
+    private int mountUnit_mountDescription_idMountDescription;
+    private int pointsType_idPointsType;
     private int pointsNumber;
-    private int idPointsCases;
+    private int pointsCases_idPointsCases;
 
     public PointsTypeHasMountUnit() {
     }
 
-    public PointsTypeHasMountUnit(int idMount, int idMountedUnit, int idUnit, int idMountRule,
-                                  int idMountDescription, int idPointsType, int pointsNumber, int idPointsCases) {
-        this.idMount = idMount;
-        this.idMountedUnit = idMountedUnit;
-        this.idUnit = idUnit;
-        this.idMountRule = idMountRule;
-        this.idMountDescription = idMountDescription;
-        this.idPointsType = idPointsType;
+    public PointsTypeHasMountUnit(int mountUnit_mount_idMount, int mountUnit_unit_idMountedUnit, int mountUnit_unit_idUnit, int mountUnit_mountRule_idMountRule,
+                                  int mountUnit_mountDescription_idMountDescription, int pointsType_idPointsType, int pointsNumber, int pointsCases_idPointsCases) {
+        this.mountUnit_mount_idMount = mountUnit_mount_idMount;
+        this.mountUnit_unit_idMountedUnit = mountUnit_unit_idMountedUnit;
+        this.mountUnit_unit_idUnit = mountUnit_unit_idUnit;
+        this.mountUnit_mountRule_idMountRule = mountUnit_mountRule_idMountRule;
+        this.mountUnit_mountDescription_idMountDescription = mountUnit_mountDescription_idMountDescription;
+        this.pointsType_idPointsType = pointsType_idPointsType;
         this.pointsNumber = pointsNumber;
-        this.idPointsCases = idPointsCases;
+        this.pointsCases_idPointsCases = pointsCases_idPointsCases;
     }
 
-    public int getIdMount() { return idMount; }
-    public void setIdMount(int idMount) { this.idMount = idMount; }
+    public int getMountUnit_mount_idMount() { return mountUnit_mount_idMount; }
+    public void setMountUnit_mount_idMount(int mountUnit_mount_idMount) { this.mountUnit_mount_idMount = mountUnit_mount_idMount; }
 
-    public int getIdMountedUnit() { return idMountedUnit; }
-    public void setIdMountedUnit(int idMountedUnit) { this.idMountedUnit = idMountedUnit; }
+    public int getMountUnit_unit_idMountedUnit() { return mountUnit_unit_idMountedUnit; }
+    public void setMountUnit_unit_idMountedUnit(int mountUnit_unit_idMountedUnit) { this.mountUnit_unit_idMountedUnit = mountUnit_unit_idMountedUnit; }
 
-    public int getIdUnit() { return idUnit; }
-    public void setIdUnit(int idUnit) { this.idUnit = idUnit; }
+    public int getMountUnit_unit_idUnit() { return mountUnit_unit_idUnit; }
+    public void setMountUnit_unit_idUnit(int mountUnit_unit_idUnit) { this.mountUnit_unit_idUnit = mountUnit_unit_idUnit; }
 
-    public int getIdMountRule() { return idMountRule; }
-    public void setIdMountRule(int idMountRule) { this.idMountRule = idMountRule; }
+    public int getMountUnit_mountRule_idMountRule() { return mountUnit_mountRule_idMountRule; }
+    public void setMountUnit_mountRule_idMountRule(int mountUnit_mountRule_idMountRule) { this.mountUnit_mountRule_idMountRule = mountUnit_mountRule_idMountRule; }
 
-    public int getIdMountDescription() { return idMountDescription; }
-    public void setIdMountDescription(int idMountDescription) { this.idMountDescription = idMountDescription; }
+    public int getMountUnit_mountDescription_idMountDescription() { return mountUnit_mountDescription_idMountDescription; }
+    public void setMountUnit_mountDescription_idMountDescription(int mountUnit_mountDescription_idMountDescription) { this.mountUnit_mountDescription_idMountDescription = mountUnit_mountDescription_idMountDescription; }
 
-    public int getIdPointsType() { return idPointsType; }
-    public void setIdPointsType(int idPointsType) { this.idPointsType = idPointsType; }
+    public int getPointsType_idPointsType() { return pointsType_idPointsType; }
+    public void setPointsType_idPointsType(int pointsType_idPointsType) { this.pointsType_idPointsType = pointsType_idPointsType; }
 
     public int getPointsNumber() { return pointsNumber; }
     public void setPointsNumber(int pointsNumber) { this.pointsNumber = pointsNumber; }
 
-    public int getIdPointsCases() { return idPointsCases; }
-    public void setIdPointsCases(int idPointsCases) { this.idPointsCases = idPointsCases; }
+    public int getPointsCases_idPointsCases() { return pointsCases_idPointsCases; }
+    public void setPointsCases_idPointsCases(int pointsCases_idPointsCases) { this.pointsCases_idPointsCases = pointsCases_idPointsCases; }
 }

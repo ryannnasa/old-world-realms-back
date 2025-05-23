@@ -1,21 +1,21 @@
 package com.example.restservice.model;
 
 public class AttachedUnit {
-    private int idUnit;
-    private int idUnit1;
+    private int unit_idUnit;
+    private int unit_idUnit1;
 
     public AttachedUnit() {
     }
 
-    public AttachedUnit(int idUnit, int idUnit1) {
-        this.idUnit = idUnit;
-        this.idUnit1 = idUnit1;
+    public AttachedUnit(int unit_idUnit, int unit_idUnit1) {
+        this.unit_idUnit = unit_idUnit;
+        this.unit_idUnit1 = unit_idUnit1;
     }
 
-    public int getIdUnit() { return idUnit; }
-    public void setIdUnit(int idUnit) { this.idUnit = idUnit; }
+    public int getUnit_idUnit() { return unit_idUnit; }
+    public void setUnit_idUnit(int unit_idUnit) { this.unit_idUnit = unit_idUnit; }
 
-    public int getIdUnit1() { return idUnit1; }
-    public void setIdUnit1(int idUnit1) { this.idUnit1 = idUnit1; }
+    public int getUnit_idUnit1() { return unit_idUnit1; }
+    public void setUnit_idUnit1(int unit_idUnit1) { this.unit_idUnit1 = unit_idUnit1; }
 }
 
