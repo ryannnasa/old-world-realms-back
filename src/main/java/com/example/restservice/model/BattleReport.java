@@ -2,7 +2,7 @@ package com.example.restservice.model;
 
 public class BattleReport {
     private int idBattleReport;
-    private String nameBattlereport;
+    private String nameBattleReport;
     private String descriptionBattleReport;
     private int player_idPlayer;
     private int player_alliance_idAlliance;
@@ -22,7 +22,7 @@ public class BattleReport {
         this.player_armyComposition_idArmyComposition = player_armyComposition_idArmyComposition;
         this.player_idPlayer = player_idPlayer;
         this.scenario_idScenario = scenario_idScenario;
-        this.nameBattlereport = nameBattlereport;
+        this.nameBattleReport = nameBattleReport;
     }
 
     public int getPlayer_alliance_idAlliance() {return player_alliance_idAlliance;}
@@ -49,6 +49,6 @@ public class BattleReport {
     public int getScenario_idScenario() {return scenario_idScenario;}
     public void setScenario_idScenario(int scenario_idScenario) {this.scenario_idScenario = scenario_idScenario;}
 
-    public String getNameBattlereport() {return nameBattlereport;}
-    public void setNameBattlereport(String nameBattlereport) {this.nameBattlereport = nameBattlereport;}
+    public String getNameBattleReport() {return nameBattleReport;}
+    public void setNameBattleReport(String nameBattleReport) {this.nameBattleReport = nameBattleReport;}
 }

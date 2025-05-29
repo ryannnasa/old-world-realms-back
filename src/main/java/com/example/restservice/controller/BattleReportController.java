@@ -2,9 +2,9 @@ package com.example.restservice.controller;
 
 import com.example.restservice.model.BattleReport;
 import com.example.restservice.repository.BattleReportRepository;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -20,6 +20,49 @@ public class BattleReportController {
         } catch (SQLException e) {
             e.printStackTrace();
             return Collections.emptyList();
+        }
+    }
+
+    @GetMapping("/battlereport/{id}")
+    public BattleReport getBattleReport(@PathVariable int id) {
+        try {
+            return BattleReportRepository.findById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Battle Report not found with the Id : " + id);
+        }
+    }
+
+    @PostMapping("/battlereport")
+    public String createBattleReport(@RequestBody BattleReport battleReport) {
+        try {
+            int rows = BattleReportRepository.create(battleReport);
+            return rows > 0 ? "Battle report created successfully." : "Failed to create battle report.";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error creating battle report.";
+        }
+    }
+
+    @PutMapping("/battlereport/{id}")
+    public String updateBattleReport(@PathVariable int id, @RequestBody BattleReport battleReport) {
+        try {
+            int rows = BattleReportRepository.update(id, battleReport);
+            return rows > 0 ? "Battle report updated successfully." : "Battle report not found.";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error updating battle report.";
+        }
+    }
+
+    @DeleteMapping("/battlereport/{id}")
+    public String deleteBattleReport(@PathVariable int id) {
+        try {
+            int rows = BattleReportRepository.delete(id);
+            return rows > 0 ? "Battle report deleted successfully." : "Battle report not found.";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error deleting battle report.";
         }
     }
 }

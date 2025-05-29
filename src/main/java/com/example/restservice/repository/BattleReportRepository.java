@@ -11,6 +11,9 @@ import java.util.List;
 
 public class BattleReportRepository {
 
+    private static final QueryRunner queryRunner = new QueryRunner();
+    private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
+
     public static List<BattleReport> findAll() throws SQLException {
         QueryRunner queryRunner = new QueryRunner();
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
@@ -18,5 +21,43 @@ public class BattleReportRepository {
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
                 "SELECT * FROM battleReport",
                 resultHandler);
+    }
+    public static BattleReport findById(int id) throws SQLException {
+        ResultSetHandler<List<BattleReport>> resultHandler = new BeanListHandler<>(BattleReport.class);
+        return queryRunner.query(db.getConn(),
+                "SELECT * FROM battleReport WHERE idBattleReport =? ",
+                id,resultHandler).getFirst();
+    }
+
+    public static int create(BattleReport battleReport) throws SQLException {
+        String sql = "INSERT INTO battleReport (nameBattleReport, descriptionBattleReport, player_idPlayer, player_alliance_idAlliance, player_armyName_idArmyName, player_armyComposition_idArmyComposition, battleReportPhoto_idBattleReportPhoto, scenario_idScenario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        return queryRunner.update(db.getConn(), sql,
+                battleReport.getNameBattleReport(),
+                battleReport.getDescriptionBattleReport(),
+                battleReport.getPlayer_idPlayer(),
+                battleReport.getPlayer_alliance_idAlliance(),
+                battleReport.getPlayer_armyName_idArmyName(),
+                battleReport.getPlayer_armyComposition_idArmyComposition(),
+                battleReport.getBattleReportPhoto_idBattleReportPhoto(),
+                battleReport.getScenario_idScenario()
+        );
+    }
+
+    public static int update(int id, BattleReport battleReport) throws SQLException {
+       String sql = "UPDATE battleReport SET nameBattleReport = ?, descriptionBattleReport = ?, player_idPlayer = ?, player_alliance_idAlliance = ?, player_armyName_idArmyName = ?, player_armyComposition_idArmyComposition = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ? WHERE idBattleReport = ?";
+       return queryRunner.update(db.getConn(), sql,
+                battleReport.getNameBattleReport(),
+                battleReport.getDescriptionBattleReport(),
+                battleReport.getPlayer_idPlayer(),
+                battleReport.getPlayer_alliance_idAlliance(),
+                battleReport.getPlayer_armyName_idArmyName(),
+                battleReport.getPlayer_armyComposition_idArmyComposition(),
+                battleReport.getBattleReportPhoto_idBattleReportPhoto(),
+                battleReport.getScenario_idScenario(),
+                id);
+    }
+
+    public static int delete(int id) throws SQLException {
+        return queryRunner.update(db.getConn(), "DELETE FROM battleReport WHERE idBattleReport = ?", id);
     }
 }
