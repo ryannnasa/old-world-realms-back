@@ -14,14 +14,22 @@ public class DatabaseSingleton {
     private static final String USER = "alex";
     private static final String PASS = "Piano!123";
 
-    private DatabaseSingleton () throws SQLException {
-        DbUtils.loadDriver(JDBC_DRIVER);
-        System.out.println("Connexion à la base de données...");
-        this.conn = DriverManager.getConnection(DB_URL, USER, PASS);
+    private DatabaseSingleton() {
+        try {
+            DbUtils.loadDriver(JDBC_DRIVER);
+            System.out.println("Connexion à la base de données...");
+            this.conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        } catch (SQLException e) {
+            System.err.println("Erreur JDBC : " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la connexion à la base de données", e);
+        }
     }
-    public static DatabaseSingleton getInstance () throws SQLException {
-        if(instance == null) {
-        instance = new DatabaseSingleton();}
+
+    public static synchronized DatabaseSingleton getInstance() {
+        if (instance == null) {
+            instance = new DatabaseSingleton();
+        }
         return instance;
     }
 
@@ -29,5 +37,4 @@ public class DatabaseSingleton {
         return conn;
     }
 }
-
 
