@@ -6,7 +6,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 public class PlayerRepository {
@@ -29,13 +29,27 @@ public class PlayerRepository {
     }
 
     public static int create(Player player) throws SQLException {
-        String sql = "INSERT INTO player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition) VALUES (?, ?, ?, ?, ?)";
-        return queryRunner.update(db.getConn(), sql,
-                player.getPlayerName(),
-                player.getPlayerScore(),
-                player.getAlliance_idAlliance(),
-                player.getArmyName_idArmyName(),
-                player.getArmyComposition_idArmyComposition());
+        Connection conn = db.getConn();
+        String sql = "INSERT INTO Player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, player.getPlayerName());
+        stmt.setString(2, player.getPlayerScore());
+        stmt.setInt(3, player.getAlliance_idAlliance());
+        stmt.setInt(4, player.getArmyName_idArmyName());
+        stmt.setInt(5, player.getArmyComposition_idArmyComposition());
+
+        int affectedRows = stmt.executeUpdate();
+        if (affectedRows == 0) {
+            throw new SQLException("Creating player failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1);
+            } else {
+                throw new SQLException("Creating player failed, no ID obtained.");
+            }
+        }
     }
 
     public static int update(int id, Player player) throws SQLException {

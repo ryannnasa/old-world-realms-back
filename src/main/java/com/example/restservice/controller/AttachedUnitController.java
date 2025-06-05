@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class AttachedUnitController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/attachedunit")
     public List<AttachedUnit> getAttachedUnits() {
         try {

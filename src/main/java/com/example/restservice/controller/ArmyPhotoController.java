@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class ArmyPhotoController {
-    // Yeah
-    @CrossOrigin(origins = "*")
     @GetMapping("/armyphoto")
     public List<ArmyPhoto> getArmyPhotos() {
         try {

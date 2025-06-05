@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class PointsTypeController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/pointstype")
     public List<PointsType> getPointsTypes() {
         try {

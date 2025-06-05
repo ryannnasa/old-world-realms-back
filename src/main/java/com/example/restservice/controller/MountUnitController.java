@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class MountUnitController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/mountunit")
     public List<MountUnit> getMountsUnit() {
         try {

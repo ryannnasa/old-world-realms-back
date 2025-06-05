@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 public class UnitTypeController {
-    @CrossOrigin(origins = "*")
     @GetMapping("/unittype")
     public List<UnitType> getUnitTypes() {
         try {

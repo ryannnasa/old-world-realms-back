@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class PrincipalUnitNameController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/principalunitname")
     public List<PrincipalUnitName> getPrincipalUnitsName() {
         try {

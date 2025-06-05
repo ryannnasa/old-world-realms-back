@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 public class AllianceController {
-    @CrossOrigin(origins = "*")
     @GetMapping("/alliance")
     public List<Alliance> getAlliances() {
         try {

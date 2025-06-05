@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class ArmyNameController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/armyname")
     public List<ArmyName> getArmiesName() {
         try {

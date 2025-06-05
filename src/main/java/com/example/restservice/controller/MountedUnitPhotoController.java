@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 public class MountedUnitPhotoController {
-    @CrossOrigin(origins = "*")
     @GetMapping("/mountedunitphoto")
     public List<MountedUnitPhoto> getArmies() {
         try {

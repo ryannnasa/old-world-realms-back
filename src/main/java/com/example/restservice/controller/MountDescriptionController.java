@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class MountDescriptionController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/mountdescription")
     public List<MountDescription> getMountsDescription() {
         try {

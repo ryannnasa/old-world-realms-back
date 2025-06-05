@@ -12,8 +12,6 @@ import java.util.List;
 
 @RestController
 public class MountRuleController {
-
-    @CrossOrigin(origins = "*")
     @GetMapping("/mountrule")
     public List<MountRule> getMountsRule() {
         try {
