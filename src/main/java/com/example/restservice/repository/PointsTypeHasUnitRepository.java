@@ -16,7 +16,7 @@ public class PointsTypeHasUnitRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<PointsTypeHasUnit>> resultHandler = new BeanListHandler<>(PointsTypeHasUnit.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM pointsTypeHasUnit",
+                "SELECT * FROM pointstype_has_unit",
                 resultHandler);
     }
 }

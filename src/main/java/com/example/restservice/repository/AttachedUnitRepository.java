@@ -16,7 +16,7 @@ public class AttachedUnitRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<AttachedUnit>> resultHandler = new BeanListHandler<>(AttachedUnit.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM attachedUnit",
+                "SELECT * FROM attachedunit",
                 resultHandler);
     }
 }

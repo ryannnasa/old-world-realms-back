@@ -16,7 +16,7 @@ public class ArmyCompositionRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<ArmyComposition>> resultHandler = new BeanListHandler<>(ArmyComposition.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM armyComposition",
+                "SELECT * FROM armycomposition",
                 resultHandler);
     }
 }

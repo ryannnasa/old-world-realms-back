@@ -30,13 +30,14 @@ public class PlayerRepository {
 
     public static int create(Player player) throws SQLException {
         Connection conn = db.getConn();
-        String sql = "INSERT INTO Player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         stmt.setString(1, player.getPlayerName());
         stmt.setString(2, player.getPlayerScore());
         stmt.setInt(3, player.getAlliance_idAlliance());
         stmt.setInt(4, player.getArmyName_idArmyName());
         stmt.setInt(5, player.getArmyComposition_idArmyComposition());
+        stmt.setInt(6, player.getBattleReport_idBattleReport());
 
         int affectedRows = stmt.executeUpdate();
         if (affectedRows == 0) {
@@ -53,13 +54,14 @@ public class PlayerRepository {
     }
 
     public static int update(int id, Player player) throws SQLException {
-        String sql = "UPDATE player SET playerName = ?, playerScore = ?, alliance_idAlliance = ?, armyName_idArmyName = ?, armyComposition_idArmyComposition = ? WHERE idPlayer = ?";
+        String sql = "UPDATE player SET playerName = ?, playerScore = ?, alliance_idAlliance = ?, armyName_idArmyName = ?, armyComposition_idArmyComposition = ?, battleReport_idBattleReport = ? WHERE idPlayer = ?";
         return queryRunner.update(db.getConn(), sql,
                 player.getPlayerName(),
                 player.getPlayerScore(),
                 player.getAlliance_idAlliance(),
                 player.getArmyName_idArmyName(),
                 player.getArmyComposition_idArmyComposition(),
+                player.getBattleReport_idBattleReport(),
                 id);
     }
 

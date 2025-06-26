@@ -16,7 +16,7 @@ public class MountRuleRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<MountRule>> resultHandler = new BeanListHandler<>(MountRule.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM mountRule",
+                "SELECT * FROM mountrule",
                 resultHandler);
     }
 }

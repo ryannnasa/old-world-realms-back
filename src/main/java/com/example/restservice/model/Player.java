@@ -7,16 +7,18 @@ public class Player {
     private int alliance_idAlliance;
     private int armyName_idArmyName;
     private int armyComposition_idArmyComposition;
+    private int battleReport_idBattleReport;
 
     public Player() {}
 
-    public Player(int idPlayer, String playerName, String playerScore, int alliance_idAlliance, int armyName_idArmyName, int armyComposition_idArmyComposition) {
+    public Player(int idPlayer, String playerName, String playerScore, int alliance_idAlliance, int armyName_idArmyName, int armyComposition_idArmyComposition, int battleReport_idBattleReport) {
         this.idPlayer = idPlayer;
         this.playerName = playerName;
         this.playerScore = playerScore;
         this.alliance_idAlliance = alliance_idAlliance;
         this.armyName_idArmyName = armyName_idArmyName;
         this.armyComposition_idArmyComposition = armyComposition_idArmyComposition;
+        this.battleReport_idBattleReport = battleReport_idBattleReport;
     }
 
     public int getIdPlayer() {return idPlayer;}
@@ -36,4 +38,7 @@ public class Player {
 
     public int getArmyComposition_idArmyComposition() {return armyComposition_idArmyComposition;}
     public void setArmyComposition_idArmyComposition(int armyComposition_idArmyComposition) {this.armyComposition_idArmyComposition = armyComposition_idArmyComposition;}
+
+    public int getBattleReport_idBattleReport() {return battleReport_idBattleReport;}
+    public void setBattleReport_idBattleReport(int battleReport_idBattleReport) {this.battleReport_idBattleReport = battleReport_idBattleReport;}
 }

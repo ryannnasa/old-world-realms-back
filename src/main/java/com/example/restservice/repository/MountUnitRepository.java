@@ -16,7 +16,7 @@ public class MountUnitRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<MountUnit>> resultHandler = new BeanListHandler<>(MountUnit.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM mountUnit",
+                "SELECT * FROM mountunit",
                 resultHandler);
     }
 }

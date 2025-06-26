@@ -16,7 +16,7 @@ public class TroopTypeRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<TroopType>> resultHandler = new BeanListHandler<>(TroopType.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM troopType",
+                "SELECT * FROM trooptype",
                 resultHandler);
     }
 }

@@ -16,7 +16,7 @@ public class UnitPhotoRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<UnitPhoto>> resultHandler = new BeanListHandler<>(UnitPhoto.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM unitPhoto",
+                "SELECT * FROM unitphoto",
                 resultHandler);
     }
 }

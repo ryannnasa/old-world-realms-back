@@ -16,7 +16,7 @@ public class PointsTypeRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<PointsType>> resultHandler = new BeanListHandler<>(PointsType.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM pointsType",
+                "SELECT * FROM pointstype",
                 resultHandler);
     }
 }

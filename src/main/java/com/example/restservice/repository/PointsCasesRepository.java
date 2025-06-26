@@ -16,7 +16,7 @@ public class PointsCasesRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<PointsCases>> resultHandler = new BeanListHandler<>(PointsCases.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM pointsCases",
+                "SELECT * FROM pointscases",
                 resultHandler);
     }
 }

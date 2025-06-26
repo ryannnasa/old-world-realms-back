@@ -19,39 +19,31 @@ public class BattleReportRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<BattleReport>> resultHandler = new BeanListHandler<>(BattleReport.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM battleReport",
+                "SELECT * FROM battlereport",
                 resultHandler);
     }
     public static BattleReport findById(int id) throws SQLException {
         ResultSetHandler<List<BattleReport>> resultHandler = new BeanListHandler<>(BattleReport.class);
         return queryRunner.query(db.getConn(),
-                "SELECT * FROM battleReport WHERE idBattleReport =? ",
+                "SELECT * FROM battlereport WHERE idBattleReport =? ",
                 id,resultHandler).getFirst();
     }
 
     public static int create(BattleReport battleReport) throws SQLException {
-        String sql = "INSERT INTO battleReport (nameBattleReport, descriptionBattleReport, player_idPlayer, player_alliance_idAlliance, player_armyName_idArmyName, player_armyComposition_idArmyComposition, battleReportPhoto_idBattleReportPhoto, scenario_idScenario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO battleReport (nameBattleReport, descriptionBattleReport, battleReportPhoto_idBattleReportPhoto, scenario_idScenario) VALUES (?, ?, ?, ?)";
         return queryRunner.update(db.getConn(), sql,
                 battleReport.getNameBattleReport(),
                 battleReport.getDescriptionBattleReport(),
-                battleReport.getPlayer_idPlayer(),
-                battleReport.getPlayer_alliance_idAlliance(),
-                battleReport.getPlayer_armyName_idArmyName(),
-                battleReport.getPlayer_armyComposition_idArmyComposition(),
                 battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                 battleReport.getScenario_idScenario()
         );
     }
 
     public static int update(int id, BattleReport battleReport) throws SQLException {
-       String sql = "UPDATE battleReport SET nameBattleReport = ?, descriptionBattleReport = ?, player_idPlayer = ?, player_alliance_idAlliance = ?, player_armyName_idArmyName = ?, player_armyComposition_idArmyComposition = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ? WHERE idBattleReport = ?";
+       String sql = "UPDATE battleReport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ? WHERE idBattleReport = ?";
        return queryRunner.update(db.getConn(), sql,
                 battleReport.getNameBattleReport(),
                 battleReport.getDescriptionBattleReport(),
-                battleReport.getPlayer_idPlayer(),
-                battleReport.getPlayer_alliance_idAlliance(),
-                battleReport.getPlayer_armyName_idArmyName(),
-                battleReport.getPlayer_armyComposition_idArmyComposition(),
                 battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                 battleReport.getScenario_idScenario(),
                 id);

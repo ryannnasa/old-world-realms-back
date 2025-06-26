@@ -16,7 +16,7 @@ public class UnitNameRepository {
         DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
         ResultSetHandler<List<UnitName>> resultHandler = new BeanListHandler<>(UnitName.class);
         return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM unitName",
+                "SELECT * FROM unitname",
                 resultHandler);
     }
 }

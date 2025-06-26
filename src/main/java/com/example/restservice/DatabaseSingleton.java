@@ -10,9 +10,9 @@ public class DatabaseSingleton {
     private Connection conn = null;
     private static DatabaseSingleton instance = null;
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/warhammer";
-    private static final String USER = "alex";
-    private static final String PASS = "Piano!123";
+    private static final String DB_URL = "jdbc:mysql://uwi0khb6dgldweu4:28gGfGlaWhUuMFQuvZMt@bk5ht5yfi31umkbh3663-mysql.services.clever-cloud.com:3306/bk5ht5yfi31umkbh3663";
+    private static final String USER = "uwi0khb6dgldweu4";
+    private static final String PASS = "28gGfGlaWhUuMFQuvZMt";
 
     private DatabaseSingleton() {
         try {
