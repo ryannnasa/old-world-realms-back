@@ -17,6 +17,8 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	implementation group: 'com.mysql', name: 'mysql-connector-j', version: '9.2.0'
 	implementation group: 'commons-dbutils', name: 'commons-dbutils', version: '1.8.1'
+	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
 }
 
 test {
