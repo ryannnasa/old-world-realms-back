@@ -6,17 +6,20 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class MountedUnitPhotoRepository {
 
+    private static final QueryRunner queryRunner = new QueryRunner();
+
     public static List<MountedUnitPhoto> findAll() throws SQLException {
-        QueryRunner queryRunner = new QueryRunner();
-        DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
-        ResultSetHandler<List<MountedUnitPhoto>> resultHandler = new BeanListHandler<>(MountedUnitPhoto.class);
-        return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM mountedunitphoto",
-                resultHandler);
+        try (Connection conn = DatabaseSingleton.getInstance().getConn()) {
+            ResultSetHandler<List<MountedUnitPhoto>> resultHandler = new BeanListHandler<>(MountedUnitPhoto.class);
+            return queryRunner.query(conn,
+                    "SELECT * FROM mountedunitphoto",
+                    resultHandler);
+        }
     }
 }

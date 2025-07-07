@@ -33,15 +33,18 @@ public class BattleReportController {
     }
 
     @PostMapping("/battlereport")
-    public String createBattleReport(@RequestBody BattleReport battleReport) {
+
+    public BattleReport createBattleReport(@RequestBody BattleReport battleReport) {
         try {
-            int rows = BattleReportRepository.create(battleReport);
-            return rows > 0 ? "Battle report created successfully." : "Failed to create battle report.";
+            int idBattleReport = BattleReportRepository.create(battleReport);
+            // Récupérer le BattleReport complet avec joueurs chargés
+            return BattleReportRepository.findById(idBattleReport);
         } catch (SQLException e) {
             e.printStackTrace();
-            return "Error creating battle report.";
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error creating battle report.");
         }
     }
+
 
     @PutMapping("/battlereport/{id}")
     public String updateBattleReport(@PathVariable int id, @RequestBody BattleReport battleReport) {

@@ -15,59 +15,107 @@ public class PlayerRepository {
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
     public static List<Player> findAll() throws SQLException {
-        ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
-        return queryRunner.query(db.getConn(),
-                "SELECT * FROM player",
-                resultHandler);
+        return db.withConnection(conn -> {
+            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
+            try {
+                return queryRunner.query(conn, "SELECT * FROM player", resultHandler);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static Player findById(int id) throws SQLException {
-        ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
-        return queryRunner.query(db.getConn(),
-        "SELECT * FROM player WHERE idPlayer =? ",
-                id,resultHandler).getFirst();
+        return db.withConnection(conn -> {
+            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
+            try {
+                List<Player> players = queryRunner.query(conn, "SELECT * FROM player WHERE idPlayer = ?", resultHandler, id);
+                return players.isEmpty() ? null : players.get(0);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static List<Player> findByBattleReportId(int idBattleReport) throws SQLException {
+        return db.withConnection(conn -> {
+            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
+            try {
+                return queryRunner.query(conn, "SELECT * FROM player WHERE battleReport_idBattleReport = ?", resultHandler, idBattleReport);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static int create(Player player) throws SQLException {
-        Connection conn = db.getConn();
-        String sql = "INSERT INTO Player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        stmt.setString(1, player.getPlayerName());
-        stmt.setString(2, player.getPlayerScore());
-        stmt.setInt(3, player.getAlliance_idAlliance());
-        stmt.setInt(4, player.getArmyName_idArmyName());
-        stmt.setInt(5, player.getArmyComposition_idArmyComposition());
-        stmt.setInt(6, player.getBattleReport_idBattleReport());
+        String sql = "INSERT INTO player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
 
-        int affectedRows = stmt.executeUpdate();
-        if (affectedRows == 0) {
-            throw new SQLException("Creating player failed, no rows affected.");
-        }
+        return db.withConnection(conn -> {
+            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, player.getPlayerName());
+                stmt.setString(2, player.getPlayerScore());
+                stmt.setInt(3, player.getAlliance_idAlliance());
+                stmt.setInt(4, player.getArmyName_idArmyName());
+                stmt.setInt(5, player.getArmyComposition_idArmyComposition());
+                stmt.setInt(6, player.getBattleReport_idBattleReport());
 
-        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-            if (generatedKeys.next()) {
-                return generatedKeys.getInt(1);
-            } else {
-                throw new SQLException("Creating player failed, no ID obtained.");
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Creating player failed, no rows affected.");
+                }
+
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        return generatedKeys.getInt(1);
+                    } else {
+                        throw new SQLException("Creating player failed, no ID obtained.");
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }
+        });
     }
 
     public static int update(int id, Player player) throws SQLException {
         String sql = "UPDATE player SET playerName = ?, playerScore = ?, alliance_idAlliance = ?, armyName_idArmyName = ?, armyComposition_idArmyComposition = ?, battleReport_idBattleReport = ? WHERE idPlayer = ?";
-        return queryRunner.update(db.getConn(), sql,
-                player.getPlayerName(),
-                player.getPlayerScore(),
-                player.getAlliance_idAlliance(),
-                player.getArmyName_idArmyName(),
-                player.getArmyComposition_idArmyComposition(),
-                player.getBattleReport_idBattleReport(),
-                id);
+
+        return db.withConnection(conn -> {
+            try {
+                return queryRunner.update(conn, sql,
+                        player.getPlayerName(),
+                        player.getPlayerScore(),
+                        player.getAlliance_idAlliance(),
+                        player.getArmyName_idArmyName(),
+                        player.getArmyComposition_idArmyComposition(),
+                        player.getBattleReport_idBattleReport(),
+                        id);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static int deleteByBattleReportId(int battleReportId) throws SQLException {
+        return db.withConnection(conn -> {
+            try {
+                return queryRunner.update(conn,
+                        "DELETE FROM player WHERE battleReport_idBattleReport = ?",
+                        battleReportId);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static int delete(int id) throws SQLException {
-        return queryRunner.update(db.getConn(), "DELETE FROM player WHERE idPlayer = ?", id);
+        return db.withConnection(conn -> {
+            try {
+                return queryRunner.update(conn, "DELETE FROM player WHERE idPlayer = ?", id);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
-
-

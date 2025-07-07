@@ -6,17 +6,20 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class MountUnitRepository {
 
+    private static final QueryRunner queryRunner = new QueryRunner();
+
     public static List<MountUnit> findAll() throws SQLException {
-        QueryRunner queryRunner = new QueryRunner();
-        DatabaseSingleton instanceDatabaseSingleton = DatabaseSingleton.getInstance();
-        ResultSetHandler<List<MountUnit>> resultHandler = new BeanListHandler<>(MountUnit.class);
-        return queryRunner.query(instanceDatabaseSingleton.getConn(),
-                "SELECT * FROM mountunit",
-                resultHandler);
+        try (Connection conn = DatabaseSingleton.getInstance().getConn()) {
+            ResultSetHandler<List<MountUnit>> resultHandler = new BeanListHandler<>(MountUnit.class);
+            return queryRunner.query(conn,
+                    "SELECT * FROM mountunit",
+                    resultHandler);
+        }
     }
 }

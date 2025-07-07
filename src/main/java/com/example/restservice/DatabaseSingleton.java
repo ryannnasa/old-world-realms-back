@@ -1,31 +1,26 @@
 package com.example.restservice;
 
-import org.apache.commons.dbutils.DbUtils;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import io.github.cdimascio.dotenv.Dotenv;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.function.Function;
 
 public class DatabaseSingleton {
-    private Connection conn = null;
-    private static DatabaseSingleton instance = null;
-    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static DatabaseSingleton instance;
+    private final HikariDataSource dataSource;
+    private final Dotenv dotenv;
 
     private DatabaseSingleton() {
-        Dotenv dotenv = Dotenv.load();
-        String dbUrl = dotenv.get("DB_URL");
-        String user = dotenv.get("DB_USER");
-        String pass = dotenv.get("DB_PASS");
-
-        try {
-            DbUtils.loadDriver(JDBC_DRIVER);
-            System.out.println("Connexion à la base de données...");
-            this.conn = DriverManager.getConnection(dbUrl, user, pass);
-        } catch (SQLException e) {
-            System.err.println("Erreur JDBC : " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la connexion à la base de données", e);
-        }
+        dotenv = Dotenv.load();
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(dotenv.get("DB_URL"));
+        config.setUsername(dotenv.get("DB_USER"));
+        config.setPassword(dotenv.get("DB_PASS"));
+        config.setMaximumPoolSize(5); // Limite le nombre de connexions dans le pool
+        dataSource = new HikariDataSource(config);
     }
 
     public static synchronized DatabaseSingleton getInstance() {
@@ -35,8 +30,13 @@ public class DatabaseSingleton {
         return instance;
     }
 
-    public Connection getConn() {
-        return conn;
+    public Connection getConn() throws SQLException {
+        return dataSource.getConnection();
+    }
+
+    public <T> T withConnection(Function<Connection, T> function) throws SQLException {
+        try (Connection conn = getConn()) {
+            return function.apply(conn);
+        }
     }
 }
-
