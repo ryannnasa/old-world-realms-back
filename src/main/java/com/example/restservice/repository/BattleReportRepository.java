@@ -100,21 +100,55 @@ public class BattleReportRepository {
     }
 
     public static int update(int id, BattleReport battleReport) throws SQLException {
-        String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ?, armyPoints = ? WHERE idBattleReport = ?";
         return db.withConnection(conn -> {
             try {
-                return queryRunner.update(conn, sql,
+                conn.setAutoCommit(false);
+
+                // Mise à jour du BattleReport
+                String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ?, armyPoints = ? WHERE idBattleReport = ?";
+                int updatedRows = queryRunner.update(conn, sql,
                         battleReport.getNameBattleReport(),
                         battleReport.getDescriptionBattleReport(),
                         battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                         battleReport.getScenario_idScenario(),
                         battleReport.getArmyPoints(),
                         id);
+
+                // Suppression des joueurs liés
+                PlayerRepository.deleteByBattleReportId(id, conn);
+
+                // Insertion des joueurs mis à jour
+                if (battleReport.getPlayers() != null) {
+                    for (Player player : battleReport.getPlayers()) {
+                        player.setBattleReport_idBattleReport(id);
+                        PlayerRepository.create(player, conn);
+                    }
+                }
+
+                conn.commit();
+                return updatedRows;
+
             } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    // Log rollback exception, ne masque pas l'exception principale
+                    rollbackEx.printStackTrace();
+                }
                 throw new RuntimeException(e);
+
+            } finally {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException autoCommitEx) {
+                    // Log erreur mais ne remplace pas l'exception principale
+                    autoCommitEx.printStackTrace();
+                }
             }
         });
     }
+
+
 
     public static int delete(int id) throws SQLException {
         // Supprimer d'abord les joueurs liés (PlayerRepository gère sa connexion)

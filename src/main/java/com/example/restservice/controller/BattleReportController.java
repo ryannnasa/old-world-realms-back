@@ -47,13 +47,17 @@ public class BattleReportController {
 
 
     @PutMapping("/battlereport/{id}")
-    public String updateBattleReport(@PathVariable int id, @RequestBody BattleReport battleReport) {
+    public BattleReport updateBattleReport(@PathVariable int id, @RequestBody BattleReport battleReport) {
         try {
             int rows = BattleReportRepository.update(id, battleReport);
-            return rows > 0 ? "Battle report updated successfully." : "Battle report not found.";
+            if (rows > 0) {
+                return BattleReportRepository.findById(id); // retourne le BattleReport mis à jour
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Battle report not found.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return "Error updating battle report.";
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating battle report.");
         }
     }
 

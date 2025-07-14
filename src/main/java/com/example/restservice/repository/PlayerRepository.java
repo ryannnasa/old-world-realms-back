@@ -48,34 +48,41 @@ public class PlayerRepository {
         });
     }
 
+    // version create avec nouvelle connexion
     public static int create(Player player) throws SQLException {
-        String sql = "INSERT INTO player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
-
         return db.withConnection(conn -> {
-            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setString(1, player.getPlayerName());
-                stmt.setString(2, player.getPlayerScore());
-                stmt.setInt(3, player.getAlliance_idAlliance());
-                stmt.setInt(4, player.getArmyName_idArmyName());
-                stmt.setInt(5, player.getArmyComposition_idArmyComposition());
-                stmt.setInt(6, player.getBattleReport_idBattleReport());
-
-                int affectedRows = stmt.executeUpdate();
-                if (affectedRows == 0) {
-                    throw new SQLException("Creating player failed, no rows affected.");
-                }
-
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        return generatedKeys.getInt(1);
-                    } else {
-                        throw new SQLException("Creating player failed, no ID obtained.");
-                    }
-                }
+            try {
+                return create(player, conn);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    // surcharge create avec connexion passée
+    public static int create(Player player, Connection conn) throws SQLException {
+        String sql = "INSERT INTO player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, player.getPlayerName());
+            stmt.setString(2, player.getPlayerScore());
+            stmt.setInt(3, player.getAlliance_idAlliance());
+            stmt.setInt(4, player.getArmyName_idArmyName());
+            stmt.setInt(5, player.getArmyComposition_idArmyComposition());
+            stmt.setInt(6, player.getBattleReport_idBattleReport());
+
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating player failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating player failed, no ID obtained.");
+                }
+            }
+        }
     }
 
     public static int update(int id, Player player) throws SQLException {
@@ -97,16 +104,22 @@ public class PlayerRepository {
         });
     }
 
+    // version deleteByBattleReportId avec nouvelle connexion
     public static int deleteByBattleReportId(int battleReportId) throws SQLException {
         return db.withConnection(conn -> {
             try {
-                return queryRunner.update(conn,
-                        "DELETE FROM player WHERE battleReport_idBattleReport = ?",
-                        battleReportId);
+                return deleteByBattleReportId(battleReportId, conn);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    // surcharge deleteByBattleReportId avec connexion passée
+    public static int deleteByBattleReportId(int battleReportId, Connection conn) throws SQLException {
+        return queryRunner.update(conn,
+                "DELETE FROM player WHERE battleReport_idBattleReport = ?",
+                battleReportId);
     }
 
     public static int delete(int id) throws SQLException {
