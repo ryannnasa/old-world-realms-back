@@ -32,6 +32,16 @@ public class BattleReportController {
         }
     }
 
+    @GetMapping("/battlereport/user/{id}")
+    public List<BattleReport> getBattleReportByUserId(@PathVariable("id") String idUser) {
+        try {
+            return BattleReportRepository.findByUserId(idUser);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
     @PostMapping("/battlereport")
 
     public BattleReport createBattleReport(@RequestBody BattleReport battleReport) {

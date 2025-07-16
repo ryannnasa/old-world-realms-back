@@ -9,6 +9,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BattleReportRepository {
@@ -64,8 +65,31 @@ public class BattleReportRepository {
         });
     }
 
+    public static List<BattleReport> findByUserId(String idUser) throws SQLException {
+        return db.withConnection(conn -> {
+            ResultSetHandler<List<BattleReport>> handler = new BeanListHandler<>(BattleReport.class);
+            try {
+                List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport WHERE idUser = ?", handler, idUser);
+
+                // Pour chaque BattleReport, charger ses joueurs
+                for (BattleReport report : reports) {
+                    List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
+                    report.setPlayers(players);
+                }
+
+                if (reports == null) {
+                    reports = new ArrayList<>();
+                }
+
+                return reports;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public static int create(BattleReport battleReport) throws SQLException {
-        String sql = "INSERT INTO battlereport (nameBattleReport, descriptionBattleReport, battleReportPhoto_idBattleReportPhoto, scenario_idScenario, armyPoints) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO battlereport (nameBattleReport, descriptionBattleReport, battleReportPhoto_idBattleReportPhoto, scenario_idScenario, armyPoints, idUser) VALUES (?, ?, ?, ?, ?, ?)";
 
         return db.withConnection(conn -> {
             try {
@@ -74,7 +98,8 @@ public class BattleReportRepository {
                         battleReport.getDescriptionBattleReport(),
                         battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                         battleReport.getScenario_idScenario(),
-                        battleReport.getArmyPoints());
+                        battleReport.getArmyPoints(),
+                        battleReport.getIdUser());
 
                 if (affectedRows == 0) {
                     throw new SQLException("Creating BattleReport failed, no rows affected.");
@@ -105,13 +130,14 @@ public class BattleReportRepository {
                 conn.setAutoCommit(false);
 
                 // Mise à jour du BattleReport
-                String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ?, armyPoints = ? WHERE idBattleReport = ?";
+                String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ?, armyPoints = ?, idUser = ? WHERE idBattleReport = ?";
                 int updatedRows = queryRunner.update(conn, sql,
                         battleReport.getNameBattleReport(),
                         battleReport.getDescriptionBattleReport(),
                         battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                         battleReport.getScenario_idScenario(),
                         battleReport.getArmyPoints(),
+                        battleReport.getIdUser(),
                         id);
 
                 // Suppression des joueurs liés

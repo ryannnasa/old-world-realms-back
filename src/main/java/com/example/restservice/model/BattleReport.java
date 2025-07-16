@@ -11,10 +11,11 @@ public class BattleReport {
     private int scenario_idScenario;
     private List<Player> players = new ArrayList<>();
     private int armyPoints;
+    private String idUser;
 
     public BattleReport() {}
 
-    public BattleReport(int idBattleReport, String nameBattleReport, String descriptionBattleReport, int battleReportPhoto_idBattleReportPhoto, int scenario_idScenario, List<Player> players, int armyPoints) {
+    public BattleReport(int idBattleReport, String nameBattleReport, String descriptionBattleReport, int battleReportPhoto_idBattleReportPhoto, int scenario_idScenario, List<Player> players, int armyPoints, String idUser) {
         this.descriptionBattleReport = descriptionBattleReport;
         this.idBattleReport = idBattleReport;
         this.battleReportPhoto_idBattleReportPhoto = battleReportPhoto_idBattleReportPhoto;
@@ -22,6 +23,7 @@ public class BattleReport {
         this.nameBattleReport = nameBattleReport;
         this.players = players;
         this.armyPoints = armyPoints;
+        this.idUser = idUser;
     }
 
     public int getIdBattleReport() {return idBattleReport;}
@@ -43,6 +45,8 @@ public class BattleReport {
     public void setPlayers(List<Player> players) { this.players = players; }
 
     public int getArmyPoints() {return armyPoints;}
-
     public void setArmyPoints(int armyPoints) {this.armyPoints = armyPoints;}
+
+    public String getIdUser() {return idUser;}
+    public void setIdUser(String idUser) {this.idUser = idUser;}
 }
