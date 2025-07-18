@@ -3,6 +3,7 @@ package com.example.restservice.repository;
 import com.example.restservice.DatabaseSingleton;
 import com.example.restservice.model.BattleReport;
 import com.example.restservice.model.Player;
+import com.example.restservice.model.BattleReportPhoto;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -23,10 +24,14 @@ public class BattleReportRepository {
             try {
                 List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport", handler);
 
-                // Pour chaque BattleReport, charger ses joueurs
                 for (BattleReport report : reports) {
+                    // Charger joueurs
                     List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
                     report.setPlayers(players);
+
+                    // Charger photos associées
+                    List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
+                    report.setBattleReportPhotos(photos);
                 }
 
                 return reports;
@@ -35,7 +40,6 @@ public class BattleReportRepository {
             }
         });
     }
-
 
     public static BattleReport findById(int id) throws SQLException {
         return db.withConnection(conn -> {
@@ -52,11 +56,14 @@ public class BattleReportRepository {
 
                 BattleReport report = reports.get(0);
 
-                // Charger les joueurs associés
+                // Charger joueurs
                 List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
-                System.out.println("DEBUG: Players found for BattleReport " + report.getIdBattleReport() + " -> " + players.size());
-
                 report.setPlayers(players);
+
+                // Charger photos
+                List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
+                report.setBattleReportPhotos(photos);
+
                 return report;
 
             } catch (SQLException e) {
@@ -71,14 +78,16 @@ public class BattleReportRepository {
             try {
                 List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport WHERE idUser = ?", handler, idUser);
 
-                // Pour chaque BattleReport, charger ses joueurs
+                if (reports == null) {
+                    reports = new ArrayList<>();
+                }
+
                 for (BattleReport report : reports) {
                     List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
                     report.setPlayers(players);
-                }
 
-                if (reports == null) {
-                    reports = new ArrayList<>();
+                    List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
+                    report.setBattleReportPhotos(photos);
                 }
 
                 return reports;
@@ -89,14 +98,15 @@ public class BattleReportRepository {
     }
 
     public static int create(BattleReport battleReport) throws SQLException {
-        String sql = "INSERT INTO battlereport (nameBattleReport, descriptionBattleReport, battleReportPhoto_idBattleReportPhoto, scenario_idScenario, armyPoints, idUser) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO battlereport (nameBattleReport, descriptionBattleReport, scenario_idScenario, armyPoints, idUser) VALUES (?, ?, ?, ?, ?)";
 
         return db.withConnection(conn -> {
             try {
+                conn.setAutoCommit(false);
+
                 int affectedRows = queryRunner.update(conn, sql,
                         battleReport.getNameBattleReport(),
                         battleReport.getDescriptionBattleReport(),
-                        battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                         battleReport.getScenario_idScenario(),
                         battleReport.getArmyPoints(),
                         battleReport.getIdUser());
@@ -110,44 +120,76 @@ public class BattleReportRepository {
                     return rs.getInt(1);
                 });
 
+                // Insertion des joueurs
                 if (battleReport.getPlayers() != null) {
                     for (Player player : battleReport.getPlayers()) {
                         player.setBattleReport_idBattleReport(idBattleReport);
-                        PlayerRepository.create(player); // Ce repository gère sa propre connexion
+                        PlayerRepository.create(player, conn);
                     }
                 }
 
+                // Insertion des photos
+                if (battleReport.getBattleReportPhotos() != null) {
+                    for (BattleReportPhoto photo : battleReport.getBattleReportPhotos()) {
+                        photo.setBattleReport_idBattleReport(idBattleReport);
+                        BattleReportPhotoRepository.create(photo, conn);
+                    }
+                }
+
+                conn.commit();
                 return idBattleReport;
+
             } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
                 throw new RuntimeException(e);
+            } finally {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException autoCommitEx) {
+                    autoCommitEx.printStackTrace();
+                }
             }
         });
     }
+
 
     public static int update(int id, BattleReport battleReport) throws SQLException {
         return db.withConnection(conn -> {
             try {
                 conn.setAutoCommit(false);
 
-                // Mise à jour du BattleReport
-                String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, battleReportPhoto_idBattleReportPhoto = ?, scenario_idScenario = ?, armyPoints = ?, idUser = ? WHERE idBattleReport = ?";
+                String sql = "UPDATE battlereport SET nameBattleReport = ?, descriptionBattleReport = ?, scenario_idScenario = ?, armyPoints = ?, idUser = ? WHERE idBattleReport = ?";
                 int updatedRows = queryRunner.update(conn, sql,
                         battleReport.getNameBattleReport(),
                         battleReport.getDescriptionBattleReport(),
-                        battleReport.getBattleReportPhoto_idBattleReportPhoto(),
                         battleReport.getScenario_idScenario(),
                         battleReport.getArmyPoints(),
                         battleReport.getIdUser(),
                         id);
 
-                // Suppression des joueurs liés
+                // Supprimer les joueurs liés
                 PlayerRepository.deleteByBattleReportId(id, conn);
 
-                // Insertion des joueurs mis à jour
+                // Insérer les joueurs mis à jour
                 if (battleReport.getPlayers() != null) {
                     for (Player player : battleReport.getPlayers()) {
                         player.setBattleReport_idBattleReport(id);
                         PlayerRepository.create(player, conn);
+                    }
+                }
+
+                // Supprimer les photos liées
+                BattleReportPhotoRepository.deleteByBattleReportId(id, conn);
+
+                // Insérer les photos mises à jour
+                if (battleReport.getBattleReportPhotos() != null) {
+                    for (BattleReportPhoto photo : battleReport.getBattleReportPhotos()) {
+                        photo.setBattleReport_idBattleReport(id);
+                        BattleReportPhotoRepository.create(photo, conn);
                     }
                 }
 
@@ -158,7 +200,6 @@ public class BattleReportRepository {
                 try {
                     conn.rollback();
                 } catch (SQLException rollbackEx) {
-                    // Log rollback exception, ne masque pas l'exception principale
                     rollbackEx.printStackTrace();
                 }
                 throw new RuntimeException(e);
@@ -167,18 +208,15 @@ public class BattleReportRepository {
                 try {
                     conn.setAutoCommit(true);
                 } catch (SQLException autoCommitEx) {
-                    // Log erreur mais ne remplace pas l'exception principale
                     autoCommitEx.printStackTrace();
                 }
             }
         });
     }
 
-
-
     public static int delete(int id) throws SQLException {
-        // Supprimer d'abord les joueurs liés (PlayerRepository gère sa connexion)
         PlayerRepository.deleteByBattleReportId(id);
+        BattleReportPhotoRepository.deleteByBattleReportId(id);
 
         return db.withConnection(conn -> {
             try {
