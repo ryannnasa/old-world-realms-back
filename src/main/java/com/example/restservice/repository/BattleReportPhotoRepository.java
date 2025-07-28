@@ -52,6 +52,12 @@ public class BattleReportPhotoRepository {
         });
     }
 
+    // Méthode pour utiliser une connexion existante
+    public static List<BattleReportPhoto> findByBattleReportId(int idBattleReport, Connection conn) throws SQLException {
+        ResultSetHandler<List<BattleReportPhoto>> resultHandler = new BeanListHandler<>(BattleReportPhoto.class);
+        return queryRunner.query(conn, "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?", resultHandler, idBattleReport);
+    }
+
     public static int create(BattleReportPhoto photo) throws SQLException {
         return db.withConnection(conn -> {
             try {

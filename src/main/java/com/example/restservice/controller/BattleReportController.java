@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"}, allowCredentials = "true")
 public class BattleReportController {
 
     private final Dotenv dotenv;
@@ -53,12 +54,6 @@ public class BattleReportController {
             @PathVariable("id") int battleReportId,
             @RequestParam("fileBattleReportPhoto") MultipartFile[] files
     ) {
-        System.out.println("Nb fichiers reçus : " + (files == null ? "null" : files.length));
-        if (files != null) {
-            for (MultipartFile file : files) {
-                System.out.println("Nom du fichier : " + file.getOriginalFilename());
-            }
-        }
         if (files == null || files.length == 0) {
             return ResponseEntity.badRequest().body(List.of("Aucun fichier reçu."));
         }
@@ -77,7 +72,7 @@ public class BattleReportController {
                         .contentType(file.getContentType())
                         .build();
 
-                // Envoi du fichier à S3 - on utilise le nom complet ici pour éviter les conflits d'import
+                // Envoi du fichier à S3
                 s3Client.putObject(
                         putRequest,
                         software.amazon.awssdk.core.sync.RequestBody.fromInputStream(file.getInputStream(), file.getSize())
@@ -98,7 +93,6 @@ public class BattleReportController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of("Upload failed"));
         }
     }
-
 
     @GetMapping("/battlereport")
     public List<BattleReport> getBattleReports() {
@@ -133,18 +127,8 @@ public class BattleReportController {
     @PostMapping("/battlereport")
     public BattleReport createBattleReport(@RequestBody BattleReport battleReport) {
         try {
+            // ✅ CORRECTION: Supprimer la duplication - la création des photos est déjà gérée dans BattleReportRepository.create()
             int idBattleReport = BattleReportRepository.create(battleReport);
-
-            if (battleReport.getPhotoFileNames() != null) {
-                for (String fileName : battleReport.getPhotoFileNames()) {
-                    BattleReportPhotoRepository.create(new BattleReportPhoto(
-                            0,
-                            fileName,
-                            idBattleReport
-                    ));
-                }
-            }
-
             return BattleReportRepository.findById(idBattleReport);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -170,42 +154,20 @@ public class BattleReportController {
     @DeleteMapping("/battlereport/{id}")
     public ResponseEntity<String> deleteBattleReport(@PathVariable int id) {
         try {
-            // 1. Supprimer les photos associées
+            // Récupérer les photos avant suppression pour les supprimer de S3
             List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(id);
 
-            Dotenv dotenv = Dotenv.load();
-            AwsBasicCredentials credentials = AwsBasicCredentials.create(
-                    dotenv.get("ACCESS_KEY"),
-                    dotenv.get("SECRET_KEY")
-            );
-
-            S3Client s3Client = S3Client.builder()
-                    .region(Region.of("fr-par"))
-                    .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                    .endpointOverride(URI.create("https://s3.fr-par.scw.cloud"))
-                    .build();
-
-            String bucketName = "old-world-realms";
-
+            // Supprimer les photos de S3
             for (BattleReportPhoto photo : photos) {
                 String key = "battle-report-photos/" + photo.getNameBattleReportPhoto();
-
-                // Supprimer l'image dans S3
                 DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                         .bucket(bucketName)
                         .key(key)
                         .build();
-
                 s3Client.deleteObject(deleteRequest);
-
-                // Supprimer l'enregistrement en base
-                BattleReportPhotoRepository.delete(photo.getIdBattleReportPhoto());
             }
 
-            // 2. Supprimer les joueurs associés
-            PlayerRepository.deleteByBattleReportId(id);
-
-            // 3. Supprimer le rapport de bataille
+            // Supprimer le rapport (les photos et joueurs sont supprimés automatiquement)
             BattleReportRepository.delete(id);
 
             return ResponseEntity.ok("Rapport de bataille et ses images supprimés avec succès.");
@@ -215,6 +177,7 @@ public class BattleReportController {
                     .body("Erreur lors de la suppression : " + e.getMessage());
         }
     }
+
     @DeleteMapping("/battlereport/{id}/photos")
     public ResponseEntity<String> deleteBattleReportPhotos(
             @PathVariable("id") int battleReportId,

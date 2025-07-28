@@ -191,8 +191,8 @@ public class BattleReportRepository {
                         battleReport.getIdUser(),
                         id);
 
+                // Gestion des joueurs
                 PlayerRepository.deleteByBattleReportId(id, conn);
-
                 if (battleReport.getPlayers() != null) {
                     for (Player player : battleReport.getPlayers()) {
                         player.setBattleReport_idBattleReport(id);
@@ -200,14 +200,33 @@ public class BattleReportRepository {
                     }
                 }
 
-                BattleReportPhotoRepository.deleteByBattleReportId(id, conn);
+                // Gestion intelligente des photos
+                List<BattleReportPhoto> existingPhotos = BattleReportPhotoRepository.findByBattleReportId(id);
+                List<String> existingFileNames = existingPhotos.stream()
+                        .map(BattleReportPhoto::getNameBattleReportPhoto)
+                        .collect(Collectors.toList());
 
-                if (battleReport.getPhotoFileNames() != null) {
-                    for (String fileName : battleReport.getPhotoFileNames()) {
-                        BattleReportPhoto photo = new BattleReportPhoto();
-                        photo.setBattleReport_idBattleReport(id);
-                        photo.setNameBattleReportPhoto(fileName);
-                        BattleReportPhotoRepository.create(photo, conn);
+                List<String> newFileNames = battleReport.getPhotoFileNames() != null ?
+                        battleReport.getPhotoFileNames() : new ArrayList<>();
+
+                // Ne supprimer que si la liste newFileNames n'est pas vide
+                if (!newFileNames.isEmpty()) {
+                    // Supprimer les photos qui ne sont plus dans la nouvelle liste
+                    for (BattleReportPhoto existingPhoto : existingPhotos) {
+                        if (!newFileNames.contains(existingPhoto.getNameBattleReportPhoto())) {
+                            queryRunner.update(conn, "DELETE FROM battlereportphoto WHERE idBattleReportPhoto = ?",
+                                    existingPhoto.getIdBattleReportPhoto());
+                        }
+                    }
+
+                    // Ajouter les nouvelles photos qui n'existaient pas
+                    for (String fileName : newFileNames) {
+                        if (!existingFileNames.contains(fileName)) {
+                            BattleReportPhoto photo = new BattleReportPhoto();
+                            photo.setBattleReport_idBattleReport(id);
+                            photo.setNameBattleReportPhoto(fileName);
+                            BattleReportPhotoRepository.create(photo, conn);
+                        }
                     }
                 }
 
@@ -233,14 +252,33 @@ public class BattleReportRepository {
     }
 
     public static int delete(int id) throws SQLException {
-        PlayerRepository.deleteByBattleReportId(id);
-        BattleReportPhotoRepository.deleteByBattleReportId(id);
-
         return db.withConnection(conn -> {
             try {
-                return queryRunner.update(conn, "DELETE FROM battlereport WHERE idBattleReport = ?", id);
+                conn.setAutoCommit(false);
+
+                // Supprimer d'abord les dépendances dans une transaction
+                PlayerRepository.deleteByBattleReportId(id, conn);
+                BattleReportPhotoRepository.deleteByBattleReportId(id, conn);
+
+                // Puis supprimer le rapport principal
+                int result = queryRunner.update(conn, "DELETE FROM battlereport WHERE idBattleReport = ?", id);
+
+                conn.commit();
+                return result;
+
             } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
                 throw new RuntimeException(e);
+            } finally {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException autoCommitEx) {
+                    autoCommitEx.printStackTrace();
+                }
             }
         });
     }

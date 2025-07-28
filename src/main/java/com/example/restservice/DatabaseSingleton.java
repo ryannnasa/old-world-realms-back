@@ -15,12 +15,14 @@ public class DatabaseSingleton {
 
     private DatabaseSingleton() {
         dotenv = Dotenv.load();
+
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(dotenv.get("DB_URL"));
         config.setUsername(dotenv.get("DB_USER"));
         config.setPassword(dotenv.get("DB_PASS"));
-        config.setMaximumPoolSize(5); // Limite le nombre de connexions dans le pool
-        dataSource = new HikariDataSource(config);
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+        this.dataSource = new HikariDataSource(config);
     }
 
     public static synchronized DatabaseSingleton getInstance() {
