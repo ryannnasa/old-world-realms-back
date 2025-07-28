@@ -4,34 +4,50 @@ import com.example.restservice.DatabaseSingleton;
 import com.example.restservice.model.BattleReport;
 import com.example.restservice.model.Player;
 import com.example.restservice.model.BattleReportPhoto;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.*;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BattleReportRepository {
 
-    private static final QueryRunner queryRunner = new QueryRunner();
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
+
+    // Mapper de noms snake_case (SQL) vers camelCase (Java)
+    private static final Map<String, String> columnToPropertyOverrides = new HashMap<>();
+    static {
+        columnToPropertyOverrides.put("idBattleReport", "idBattleReport");
+        columnToPropertyOverrides.put("nameBattleReport", "nameBattleReport");
+        columnToPropertyOverrides.put("descriptionBattleReport", "descriptionBattleReport");
+        columnToPropertyOverrides.put("scenario_idScenario", "scenario_idScenario");
+        columnToPropertyOverrides.put("armyPoints", "armyPoints");
+        columnToPropertyOverrides.put("idUser", "idUser");
+    }
+
+    private static final RowProcessor rowProcessor =
+            new BasicRowProcessor(new BeanProcessor(columnToPropertyOverrides));
+
+    private static final ResultSetHandler<List<BattleReport>> battleReportListHandler =
+            new BeanListHandler<>(BattleReport.class, rowProcessor);
+
+    private static final QueryRunner queryRunner = new QueryRunner();
 
     public static List<BattleReport> findAll() throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReport>> handler = new BeanListHandler<>(BattleReport.class);
             try {
-                List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport", handler);
+                List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport", battleReportListHandler);
 
                 for (BattleReport report : reports) {
-                    // Charger joueurs
                     List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
                     report.setPlayers(players);
 
-                    // Charger photos associées
                     List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                    report.setBattleReportPhotos(photos);
+                    List<String> fileNames = photos.stream()
+                            .map(BattleReportPhoto::getNameBattleReportPhoto)
+                            .toList();
+                    report.setPhotoFileNames(fileNames);
                 }
 
                 return reports;
@@ -43,11 +59,10 @@ public class BattleReportRepository {
 
     public static BattleReport findById(int id) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReport>> handler = new BeanListHandler<>(BattleReport.class);
             try {
                 List<BattleReport> reports = queryRunner.query(conn,
                         "SELECT * FROM battlereport WHERE idBattleReport = ?",
-                        handler,
+                        battleReportListHandler,
                         id);
 
                 if (reports == null || reports.isEmpty()) {
@@ -56,13 +71,14 @@ public class BattleReportRepository {
 
                 BattleReport report = reports.get(0);
 
-                // Charger joueurs
                 List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
                 report.setPlayers(players);
 
-                // Charger photos
                 List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                report.setBattleReportPhotos(photos);
+                List<String> fileNames = photos.stream()
+                        .map(BattleReportPhoto::getNameBattleReportPhoto)
+                        .toList();
+                report.setPhotoFileNames(fileNames);
 
                 return report;
 
@@ -74,9 +90,11 @@ public class BattleReportRepository {
 
     public static List<BattleReport> findByUserId(String idUser) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReport>> handler = new BeanListHandler<>(BattleReport.class);
             try {
-                List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport WHERE idUser = ?", handler, idUser);
+                List<BattleReport> reports = queryRunner.query(conn,
+                        "SELECT * FROM battlereport WHERE idUser = ?",
+                        battleReportListHandler,
+                        idUser);
 
                 if (reports == null) {
                     reports = new ArrayList<>();
@@ -87,7 +105,10 @@ public class BattleReportRepository {
                     report.setPlayers(players);
 
                     List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                    report.setBattleReportPhotos(photos);
+                    List<String> photoFileNames = photos.stream()
+                            .map(BattleReportPhoto::getNameBattleReportPhoto)
+                            .collect(Collectors.toList());
+                    report.setPhotoFileNames(photoFileNames);
                 }
 
                 return reports;
@@ -120,7 +141,6 @@ public class BattleReportRepository {
                     return rs.getInt(1);
                 });
 
-                // Insertion des joueurs
                 if (battleReport.getPlayers() != null) {
                     for (Player player : battleReport.getPlayers()) {
                         player.setBattleReport_idBattleReport(idBattleReport);
@@ -128,10 +148,11 @@ public class BattleReportRepository {
                     }
                 }
 
-                // Insertion des photos
-                if (battleReport.getBattleReportPhotos() != null) {
-                    for (BattleReportPhoto photo : battleReport.getBattleReportPhotos()) {
+                if (battleReport.getPhotoFileNames() != null) {
+                    for (String fileName : battleReport.getPhotoFileNames()) {
+                        BattleReportPhoto photo = new BattleReportPhoto();
                         photo.setBattleReport_idBattleReport(idBattleReport);
+                        photo.setNameBattleReportPhoto(fileName);
                         BattleReportPhotoRepository.create(photo, conn);
                     }
                 }
@@ -156,7 +177,6 @@ public class BattleReportRepository {
         });
     }
 
-
     public static int update(int id, BattleReport battleReport) throws SQLException {
         return db.withConnection(conn -> {
             try {
@@ -171,10 +191,8 @@ public class BattleReportRepository {
                         battleReport.getIdUser(),
                         id);
 
-                // Supprimer les joueurs liés
                 PlayerRepository.deleteByBattleReportId(id, conn);
 
-                // Insérer les joueurs mis à jour
                 if (battleReport.getPlayers() != null) {
                     for (Player player : battleReport.getPlayers()) {
                         player.setBattleReport_idBattleReport(id);
@@ -182,13 +200,13 @@ public class BattleReportRepository {
                     }
                 }
 
-                // Supprimer les photos liées
                 BattleReportPhotoRepository.deleteByBattleReportId(id, conn);
 
-                // Insérer les photos mises à jour
-                if (battleReport.getBattleReportPhotos() != null) {
-                    for (BattleReportPhoto photo : battleReport.getBattleReportPhotos()) {
+                if (battleReport.getPhotoFileNames() != null) {
+                    for (String fileName : battleReport.getPhotoFileNames()) {
+                        BattleReportPhoto photo = new BattleReportPhoto();
                         photo.setBattleReport_idBattleReport(id);
+                        photo.setNameBattleReportPhoto(fileName);
                         BattleReportPhotoRepository.create(photo, conn);
                     }
                 }

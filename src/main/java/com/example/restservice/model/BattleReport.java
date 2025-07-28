@@ -7,7 +7,7 @@ public class BattleReport {
     private int idBattleReport;
     private String nameBattleReport;
     private String descriptionBattleReport;
-    private List<BattleReportPhoto> battleReportPhotos;
+    private List<String> photoFileNames;
     private int scenario_idScenario;
     private List<Player> players = new ArrayList<>();
     private int armyPoints;
@@ -15,10 +15,10 @@ public class BattleReport {
 
     public BattleReport() {}
 
-    public BattleReport(int idBattleReport, String nameBattleReport, String descriptionBattleReport, List<BattleReportPhoto> battleReportPhoto, int scenario_idScenario, List<Player> players, int armyPoints, String idUser) {
+    public BattleReport(int idBattleReport, String nameBattleReport, String descriptionBattleReport, List<String> photoFileNames, int scenario_idScenario, List<Player> players, int armyPoints, String idUser) {
         this.descriptionBattleReport = descriptionBattleReport;
         this.idBattleReport = idBattleReport;
-        this.battleReportPhotos = battleReportPhotos;
+        this.photoFileNames = photoFileNames;
         this.scenario_idScenario = scenario_idScenario;
         this.nameBattleReport = nameBattleReport;
         this.players = players;
@@ -32,9 +32,9 @@ public class BattleReport {
     public String getDescriptionBattleReport() {return descriptionBattleReport;}
     public void setDescriptionBattleReport(String descriptionBattleReport) {this.descriptionBattleReport = descriptionBattleReport;}
 
-    public List<BattleReportPhoto> getBattleReportPhotos() {return battleReportPhotos;}
+    public List<String> getPhotoFileNames() {return photoFileNames;}
 
-    public void setBattleReportPhotos(List<BattleReportPhoto> battleReportPhotos) {this.battleReportPhotos = battleReportPhotos;}
+    public void setPhotoFileNames(List<String> photoFileNames) {this.photoFileNames = photoFileNames;}
 
     public int getScenario_idScenario() {return scenario_idScenario;}
     public void setScenario_idScenario(int scenario_idScenario) {this.scenario_idScenario = scenario_idScenario;}

@@ -123,4 +123,27 @@ public class BattleReportPhotoRepository {
             }
         });
     }
+
+    public static BattleReportPhoto findByFileNameAndBattleReportId(String fileName, int battleReportId) throws SQLException {
+        return db.withConnection(conn -> {
+            String query = "SELECT * FROM battlereportphoto WHERE nameBattleReportPhoto = ? AND battleReport_idBattleReport = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, fileName);
+                stmt.setInt(2, battleReportId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return new BattleReportPhoto(
+                                rs.getInt("idBattleReportPhoto"),
+                                rs.getString("nameBattleReportPhoto"),
+                                rs.getInt("battleReport_idBattleReport")
+                        );
+                    } else {
+                        return null;
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }
