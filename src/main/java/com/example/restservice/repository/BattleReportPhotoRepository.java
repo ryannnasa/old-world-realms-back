@@ -18,11 +18,14 @@ public class BattleReportPhotoRepository {
     private static final QueryRunner queryRunner = new QueryRunner();
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
+    // Handler réutilisable pour éviter la duplication
+    private static final ResultSetHandler<List<BattleReportPhoto>> listHandler =
+            new BeanListHandler<>(BattleReportPhoto.class);
+
     public static List<BattleReportPhoto> findAll() throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReportPhoto>> resultHandler = new BeanListHandler<>(BattleReportPhoto.class);
             try {
-                return queryRunner.query(conn, "SELECT * FROM battlereportphoto", resultHandler);
+                return queryRunner.query(conn, "SELECT * FROM battlereportphoto", listHandler);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -31,9 +34,10 @@ public class BattleReportPhotoRepository {
 
     public static BattleReportPhoto findById(int id) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReportPhoto>> resultHandler = new BeanListHandler<>(BattleReportPhoto.class);
             try {
-                List<BattleReportPhoto> photos = queryRunner.query(conn, "SELECT * FROM battlereportphoto WHERE idBattleReportPhoto = ?", resultHandler, id);
+                List<BattleReportPhoto> photos = queryRunner.query(conn,
+                    "SELECT * FROM battlereportphoto WHERE idBattleReportPhoto = ?",
+                    listHandler, id);
                 return photos.isEmpty() ? null : photos.get(0);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -43,9 +47,10 @@ public class BattleReportPhotoRepository {
 
     public static List<BattleReportPhoto> findByBattleReportId(int idBattleReport) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<BattleReportPhoto>> resultHandler = new BeanListHandler<>(BattleReportPhoto.class);
             try {
-                return queryRunner.query(conn, "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?", resultHandler, idBattleReport);
+                return queryRunner.query(conn,
+                    "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?",
+                    listHandler, idBattleReport);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -54,8 +59,9 @@ public class BattleReportPhotoRepository {
 
     // Méthode pour utiliser une connexion existante
     public static List<BattleReportPhoto> findByBattleReportId(int idBattleReport, Connection conn) throws SQLException {
-        ResultSetHandler<List<BattleReportPhoto>> resultHandler = new BeanListHandler<>(BattleReportPhoto.class);
-        return queryRunner.query(conn, "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?", resultHandler, idBattleReport);
+        return queryRunner.query(conn,
+            "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?",
+            listHandler, idBattleReport);
     }
 
     public static int create(BattleReportPhoto photo) throws SQLException {
@@ -95,9 +101,9 @@ public class BattleReportPhotoRepository {
         return db.withConnection(conn -> {
             try {
                 return queryRunner.update(conn, sql,
-                        photo.getNameBattleReportPhoto(),
-                        photo.getBattleReport_idBattleReport(),
-                        id);
+                    photo.getNameBattleReportPhoto(),
+                    photo.getBattleReport_idBattleReport(),
+                    id);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -132,21 +138,12 @@ public class BattleReportPhotoRepository {
 
     public static BattleReportPhoto findByFileNameAndBattleReportId(String fileName, int battleReportId) throws SQLException {
         return db.withConnection(conn -> {
-            String query = "SELECT * FROM battlereportphoto WHERE nameBattleReportPhoto = ? AND battleReport_idBattleReport = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setString(1, fileName);
-                stmt.setInt(2, battleReportId);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return new BattleReportPhoto(
-                                rs.getInt("idBattleReportPhoto"),
-                                rs.getString("nameBattleReportPhoto"),
-                                rs.getInt("battleReport_idBattleReport")
-                        );
-                    } else {
-                        return null;
-                    }
-                }
+            try {
+                List<BattleReportPhoto> photos = queryRunner.query(conn,
+                    "SELECT * FROM battlereportphoto WHERE nameBattleReportPhoto = ? AND battleReport_idBattleReport = ?",
+                    listHandler, fileName, battleReportId);
+
+                return photos.isEmpty() ? null : photos.get(0);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

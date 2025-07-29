@@ -9,46 +9,41 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BattleReportRepository {
 
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
-    // Mapper de noms snake_case (SQL) vers camelCase (Java)
-    private static final Map<String, String> columnToPropertyOverrides = new HashMap<>();
-    static {
-        columnToPropertyOverrides.put("idBattleReport", "idBattleReport");
-        columnToPropertyOverrides.put("nameBattleReport", "nameBattleReport");
-        columnToPropertyOverrides.put("descriptionBattleReport", "descriptionBattleReport");
-        columnToPropertyOverrides.put("scenario_idScenario", "scenario_idScenario");
-        columnToPropertyOverrides.put("armyPoints", "armyPoints");
-        columnToPropertyOverrides.put("idUser", "idUser");
-    }
-
-    private static final RowProcessor rowProcessor =
-            new BasicRowProcessor(new BeanProcessor(columnToPropertyOverrides));
-
+    // Handler simplifié sans mapping inutile
     private static final ResultSetHandler<List<BattleReport>> battleReportListHandler =
-            new BeanListHandler<>(BattleReport.class, rowProcessor);
+            new BeanListHandler<>(BattleReport.class);
 
     private static final QueryRunner queryRunner = new QueryRunner();
+
+    // Méthode utilitaire pour enrichir un BattleReport avec ses players et photos
+    private static void enrichBattleReport(BattleReport report) throws SQLException {
+        List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
+        report.setPlayers(players);
+
+        List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
+        List<String> fileNames = photos.stream()
+                .map(BattleReportPhoto::getNameBattleReportPhoto)
+                .toList();
+        report.setPhotoFileNames(fileNames);
+    }
 
     public static List<BattleReport> findAll() throws SQLException {
         return db.withConnection(conn -> {
             try {
                 List<BattleReport> reports = queryRunner.query(conn, "SELECT * FROM battlereport", battleReportListHandler);
 
-                for (BattleReport report : reports) {
-                    List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
-                    report.setPlayers(players);
-
-                    List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                    List<String> fileNames = photos.stream()
-                            .map(BattleReportPhoto::getNameBattleReportPhoto)
-                            .toList();
-                    report.setPhotoFileNames(fileNames);
-                }
+                reports.forEach(report -> {
+                    try {
+                        enrichBattleReport(report);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
                 return reports;
             } catch (SQLException e) {
@@ -70,16 +65,7 @@ public class BattleReportRepository {
                 }
 
                 BattleReport report = reports.get(0);
-
-                List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
-                report.setPlayers(players);
-
-                List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                List<String> fileNames = photos.stream()
-                        .map(BattleReportPhoto::getNameBattleReportPhoto)
-                        .toList();
-                report.setPhotoFileNames(fileNames);
-
+                enrichBattleReport(report);
                 return report;
 
             } catch (SQLException e) {
@@ -97,19 +83,16 @@ public class BattleReportRepository {
                         idUser);
 
                 if (reports == null) {
-                    reports = new ArrayList<>();
+                    return new ArrayList<>();
                 }
 
-                for (BattleReport report : reports) {
-                    List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
-                    report.setPlayers(players);
-
-                    List<BattleReportPhoto> photos = BattleReportPhotoRepository.findByBattleReportId(report.getIdBattleReport());
-                    List<String> photoFileNames = photos.stream()
-                            .map(BattleReportPhoto::getNameBattleReportPhoto)
-                            .collect(Collectors.toList());
-                    report.setPhotoFileNames(photoFileNames);
-                }
+                reports.forEach(report -> {
+                    try {
+                        enrichBattleReport(report);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
                 return reports;
             } catch (SQLException e) {
@@ -141,21 +124,28 @@ public class BattleReportRepository {
                     return rs.getInt(1);
                 });
 
-                if (battleReport.getPlayers() != null) {
-                    for (Player player : battleReport.getPlayers()) {
-                        player.setBattleReport_idBattleReport(idBattleReport);
-                        PlayerRepository.create(player, conn);
-                    }
-                }
+                // Simplification avec Optional et forEach
+                Optional.ofNullable(battleReport.getPlayers())
+                        .ifPresent(players -> players.forEach(player -> {
+                            try {
+                                player.setBattleReport_idBattleReport(idBattleReport);
+                                PlayerRepository.create(player, conn);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }));
 
-                if (battleReport.getPhotoFileNames() != null) {
-                    for (String fileName : battleReport.getPhotoFileNames()) {
-                        BattleReportPhoto photo = new BattleReportPhoto();
-                        photo.setBattleReport_idBattleReport(idBattleReport);
-                        photo.setNameBattleReportPhoto(fileName);
-                        BattleReportPhotoRepository.create(photo, conn);
-                    }
-                }
+                Optional.ofNullable(battleReport.getPhotoFileNames())
+                        .ifPresent(fileNames -> fileNames.forEach(fileName -> {
+                            try {
+                                BattleReportPhoto photo = new BattleReportPhoto();
+                                photo.setBattleReport_idBattleReport(idBattleReport);
+                                photo.setNameBattleReportPhoto(fileName);
+                                BattleReportPhotoRepository.create(photo, conn);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }));
 
                 conn.commit();
                 return idBattleReport;
@@ -191,43 +181,54 @@ public class BattleReportRepository {
                         battleReport.getIdUser(),
                         id);
 
-                // Gestion des joueurs
+                // Gestion des joueurs avec Optional et forEach
                 PlayerRepository.deleteByBattleReportId(id, conn);
-                if (battleReport.getPlayers() != null) {
-                    for (Player player : battleReport.getPlayers()) {
-                        player.setBattleReport_idBattleReport(id);
-                        PlayerRepository.create(player, conn);
-                    }
-                }
+                Optional.ofNullable(battleReport.getPlayers())
+                        .ifPresent(players -> players.forEach(player -> {
+                            try {
+                                player.setBattleReport_idBattleReport(id);
+                                PlayerRepository.create(player, conn);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }));
 
-                // Gestion intelligente des photos
+                // Gestion intelligente des photos simplifiée
                 List<BattleReportPhoto> existingPhotos = BattleReportPhotoRepository.findByBattleReportId(id);
                 List<String> existingFileNames = existingPhotos.stream()
                         .map(BattleReportPhoto::getNameBattleReportPhoto)
-                        .collect(Collectors.toList());
+                        .toList();
 
-                List<String> newFileNames = battleReport.getPhotoFileNames() != null ?
-                        battleReport.getPhotoFileNames() : new ArrayList<>();
+                List<String> newFileNames = Optional.ofNullable(battleReport.getPhotoFileNames())
+                        .orElse(new ArrayList<>());
 
                 // Ne supprimer que si la liste newFileNames n'est pas vide
                 if (!newFileNames.isEmpty()) {
                     // Supprimer les photos qui ne sont plus dans la nouvelle liste
-                    for (BattleReportPhoto existingPhoto : existingPhotos) {
-                        if (!newFileNames.contains(existingPhoto.getNameBattleReportPhoto())) {
-                            queryRunner.update(conn, "DELETE FROM battlereportphoto WHERE idBattleReportPhoto = ?",
-                                    existingPhoto.getIdBattleReportPhoto());
-                        }
-                    }
+                    existingPhotos.stream()
+                            .filter(photo -> !newFileNames.contains(photo.getNameBattleReportPhoto()))
+                            .forEach(photo -> {
+                                try {
+                                    queryRunner.update(conn, "DELETE FROM battlereportphoto WHERE idBattleReportPhoto = ?",
+                                            photo.getIdBattleReportPhoto());
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
 
                     // Ajouter les nouvelles photos qui n'existaient pas
-                    for (String fileName : newFileNames) {
-                        if (!existingFileNames.contains(fileName)) {
-                            BattleReportPhoto photo = new BattleReportPhoto();
-                            photo.setBattleReport_idBattleReport(id);
-                            photo.setNameBattleReportPhoto(fileName);
-                            BattleReportPhotoRepository.create(photo, conn);
-                        }
-                    }
+                    newFileNames.stream()
+                            .filter(fileName -> !existingFileNames.contains(fileName))
+                            .forEach(fileName -> {
+                                try {
+                                    BattleReportPhoto photo = new BattleReportPhoto();
+                                    photo.setBattleReport_idBattleReport(id);
+                                    photo.setNameBattleReportPhoto(fileName);
+                                    BattleReportPhotoRepository.create(photo, conn);
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
                 }
 
                 conn.commit();

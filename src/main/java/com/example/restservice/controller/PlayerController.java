@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +18,7 @@ public class PlayerController {
             return PlayerRepository.findAll();
         } catch (SQLException e) {
             e.printStackTrace();
-            return Collections.emptyList();
+            return List.of(); // Plus moderne que Collections.emptyList()
         }
     }
 
@@ -36,32 +34,31 @@ public class PlayerController {
 
     @PostMapping("/player")
     public @ResponseBody Map<String, Object> createPlayer(@RequestBody Player player) {
-        Map<String, Object> response = new HashMap<>();
         try {
-            int generatedId = PlayerRepository.create(player); // on suppose que cette méthode renvoie l'id du joueur
+            int generatedId = PlayerRepository.create(player);
             if (generatedId > 0) {
-                response.put("message", "Player created successfully.");
-                response.put("idPlayer", generatedId);
+                return Map.of(
+                    "message", "Player created successfully.",
+                    "idPlayer", generatedId
+                );
             } else {
-                response.put("message", "Failed to create player.");
+                return Map.of("message", "Failed to create player.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            response.put("message", "Error creating player.");
+            return Map.of("message", "Error creating player.");
         }
-        return response;
     }
-
 
     @PutMapping("/player/{id}")
     public @ResponseBody Map<String, String> updatePlayer(@PathVariable int id, @RequestBody Player player) {
         try {
             int rows = PlayerRepository.update(id, player);
-            return Collections.singletonMap("message",
-                    rows > 0 ? "Player updated successfully." : "Player not found.");
+            return Map.of("message",
+                rows > 0 ? "Player updated successfully." : "Player not found.");
         } catch (SQLException e) {
             e.printStackTrace();
-            return Collections.singletonMap("message", "Error updating player.");
+            return Map.of("message", "Error updating player.");
         }
     }
 
@@ -69,11 +66,11 @@ public class PlayerController {
     public @ResponseBody Map<String, String> deletePlayer(@PathVariable int id) {
         try {
             int rows = PlayerRepository.delete(id);
-            return Collections.singletonMap("message",
-                    rows > 0 ? "Player deleted successfully." : "Player not found.");
+            return Map.of("message",
+                rows > 0 ? "Player deleted successfully." : "Player not found.");
         } catch (SQLException e) {
             e.printStackTrace();
-            return Collections.singletonMap("message", "Error deleting player.");
+            return Map.of("message", "Error deleting player.");
         }
     }
 }

@@ -14,11 +14,14 @@ public class PlayerRepository {
     private static final QueryRunner queryRunner = new QueryRunner();
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
+    // Handler réutilisable pour éviter la duplication
+    private static final ResultSetHandler<List<Player>> listHandler =
+            new BeanListHandler<>(Player.class);
+
     public static List<Player> findAll() throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
             try {
-                return queryRunner.query(conn, "SELECT * FROM player", resultHandler);
+                return queryRunner.query(conn, "SELECT * FROM player", listHandler);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -27,9 +30,8 @@ public class PlayerRepository {
 
     public static Player findById(int id) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
             try {
-                List<Player> players = queryRunner.query(conn, "SELECT * FROM player WHERE idPlayer = ?", resultHandler, id);
+                List<Player> players = queryRunner.query(conn, "SELECT * FROM player WHERE idPlayer = ?", listHandler, id);
                 return players.isEmpty() ? null : players.get(0);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -39,9 +41,8 @@ public class PlayerRepository {
 
     public static List<Player> findByBattleReportId(int idBattleReport) throws SQLException {
         return db.withConnection(conn -> {
-            ResultSetHandler<List<Player>> resultHandler = new BeanListHandler<>(Player.class);
             try {
-                return queryRunner.query(conn, "SELECT * FROM player WHERE battleReport_idBattleReport = ?", resultHandler, idBattleReport);
+                return queryRunner.query(conn, "SELECT * FROM player WHERE battleReport_idBattleReport = ?", listHandler, idBattleReport);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
