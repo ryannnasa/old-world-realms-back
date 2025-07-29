@@ -63,7 +63,7 @@ public class BattleReportController {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) continue;
 
-                String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+                String fileName = UUID.randomUUID().toString();
 
                 // Construction de la requête S3
                 PutObjectRequest putRequest = PutObjectRequest.builder()
