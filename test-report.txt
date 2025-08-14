@@ -1,0 +1,59 @@
+========================================
+    TESTS UNITAIRES PROJET WARHAMMER
+========================================
+
+🎯 RÉSUMÉ DES TESTS EXÉCUTÉS
+-----------------------------
+✅ S3ServiceTest            : 7 tests
+✅ BattleReportControllerTest: 12 tests
+✅ BattleReportRepositoryTest: 6 tests
+
+📊 STATISTIQUES GLOBALES
+-------------------------
+🔥 TOTAL TESTS     : 25 tests
+✅ SUCCÈS          : 25 tests (100%)
+❌ ÉCHECS          : 0 tests
+⏱️  DURÉE          : ~5 secondes
+
+🛠️ DÉTAILS PAR CATÉGORIE
+-------------------------
+📦 SERVICE LAYER (S3Service)
+   • Upload de fichiers vers S3
+   • Téléchargement depuis S3
+   • Suppression de fichiers S3
+   • Génération d'URLs pré-signées
+   • Gestion des erreurs S3
+
+🌐 CONTROLLER LAYER (BattleReportController)
+   • Endpoints REST complets (CRUD)
+   • Upload de photos multipart
+   • Suppression sélective d'images
+   • Gestion des erreurs HTTP
+   • Tests d'intégration MockMVC
+
+💾 REPOSITORY LAYER (BattleReportRepository)
+   • Validation des modèles de données
+   • Tests des propriétés et setters/getters
+   • Gestion des cas limites
+   • Vérification de l'architecture
+
+⚡ TECHNOLOGIES UTILISÉES
+-------------------------
+• JUnit 5 (Framework de test moderne)
+• Mockito (Mocking et stubbing)
+• Spring Boot Test (Tests d'intégration)
+• MockMVC (Tests des contrôleurs REST)
+• H2 Database (Base de données de test)
+
+🚀 COUVERTURE FONCTIONNELLE
+----------------------------
+✅ API REST complète
+✅ Gestion des fichiers S3
+✅ Validation des données
+✅ Gestion d'erreurs
+✅ Tests unitaires isolés
+✅ Tests d'intégration
+
+BUILD SUCCESSFUL ✨
+Tous les tests sont VERTS ! 🎉
+========================================
