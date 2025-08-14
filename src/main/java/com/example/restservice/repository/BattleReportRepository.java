@@ -14,13 +14,11 @@ public class BattleReportRepository {
 
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
-    // Handler simplifié sans mapping inutile
     private static final ResultSetHandler<List<BattleReport>> battleReportListHandler =
             new BeanListHandler<>(BattleReport.class);
 
     private static final QueryRunner queryRunner = new QueryRunner();
 
-    // Méthode utilitaire pour enrichir un BattleReport avec ses players et photos
     private static void enrichBattleReport(BattleReport report) throws SQLException {
         List<Player> players = PlayerRepository.findByBattleReportId(report.getIdBattleReport());
         report.setPlayers(players);
@@ -124,7 +122,6 @@ public class BattleReportRepository {
                     return rs.getInt(1);
                 });
 
-                // Simplification avec Optional et forEach
                 Optional.ofNullable(battleReport.getPlayers())
                         .ifPresent(players -> players.forEach(player -> {
                             try {
@@ -181,7 +178,6 @@ public class BattleReportRepository {
                         battleReport.getIdUser(),
                         id);
 
-                // Gestion des joueurs avec Optional et forEach
                 PlayerRepository.deleteByBattleReportId(id, conn);
                 Optional.ofNullable(battleReport.getPlayers())
                         .ifPresent(players -> players.forEach(player -> {
@@ -193,7 +189,6 @@ public class BattleReportRepository {
                             }
                         }));
 
-                // Gestion intelligente des photos simplifiée
                 List<BattleReportPhoto> existingPhotos = BattleReportPhotoRepository.findByBattleReportId(id);
                 List<String> existingFileNames = existingPhotos.stream()
                         .map(BattleReportPhoto::getNameBattleReportPhoto)
@@ -202,9 +197,7 @@ public class BattleReportRepository {
                 List<String> newFileNames = Optional.ofNullable(battleReport.getPhotoFileNames())
                         .orElse(new ArrayList<>());
 
-                // Ne supprimer que si la liste newFileNames n'est pas vide
                 if (!newFileNames.isEmpty()) {
-                    // Supprimer les photos qui ne sont plus dans la nouvelle liste
                     existingPhotos.stream()
                             .filter(photo -> !newFileNames.contains(photo.getNameBattleReportPhoto()))
                             .forEach(photo -> {
@@ -216,7 +209,6 @@ public class BattleReportRepository {
                                 }
                             });
 
-                    // Ajouter les nouvelles photos qui n'existaient pas
                     newFileNames.stream()
                             .filter(fileName -> !existingFileNames.contains(fileName))
                             .forEach(fileName -> {
@@ -257,11 +249,9 @@ public class BattleReportRepository {
             try {
                 conn.setAutoCommit(false);
 
-                // Supprimer d'abord les dépendances dans une transaction
                 PlayerRepository.deleteByBattleReportId(id, conn);
                 BattleReportPhotoRepository.deleteByBattleReportId(id, conn);
 
-                // Puis supprimer le rapport principal
                 int result = queryRunner.update(conn, "DELETE FROM battlereport WHERE idBattleReport = ?", id);
 
                 conn.commit();

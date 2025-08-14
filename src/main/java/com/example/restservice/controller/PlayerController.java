@@ -18,7 +18,7 @@ public class PlayerController {
             return PlayerRepository.findAll();
         } catch (SQLException e) {
             e.printStackTrace();
-            return List.of(); // Plus moderne que Collections.emptyList()
+            return List.of();
         }
     }
 

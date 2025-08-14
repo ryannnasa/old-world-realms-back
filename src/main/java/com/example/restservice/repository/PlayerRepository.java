@@ -14,7 +14,6 @@ public class PlayerRepository {
     private static final QueryRunner queryRunner = new QueryRunner();
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
-    // Handler réutilisable pour éviter la duplication
     private static final ResultSetHandler<List<Player>> listHandler =
             new BeanListHandler<>(Player.class);
 
@@ -49,7 +48,6 @@ public class PlayerRepository {
         });
     }
 
-    // version create avec nouvelle connexion
     public static int create(Player player) throws SQLException {
         return db.withConnection(conn -> {
             try {
@@ -60,7 +58,6 @@ public class PlayerRepository {
         });
     }
 
-    // surcharge create avec connexion passée
     public static int create(Player player, Connection conn) throws SQLException {
         String sql = "INSERT INTO player (playerName, playerScore, alliance_idAlliance, armyName_idArmyName, armyComposition_idArmyComposition, battleReport_idBattleReport) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -105,7 +102,6 @@ public class PlayerRepository {
         });
     }
 
-    // version deleteByBattleReportId avec nouvelle connexion
     public static int deleteByBattleReportId(int battleReportId) throws SQLException {
         return db.withConnection(conn -> {
             try {
@@ -116,7 +112,6 @@ public class PlayerRepository {
         });
     }
 
-    // surcharge deleteByBattleReportId avec connexion passée
     public static int deleteByBattleReportId(int battleReportId, Connection conn) throws SQLException {
         return queryRunner.update(conn,
                 "DELETE FROM player WHERE battleReport_idBattleReport = ?",

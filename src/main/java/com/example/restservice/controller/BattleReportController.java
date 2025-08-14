@@ -28,7 +28,6 @@ public class BattleReportController {
         this.s3Service = s3Service;
     }
 
-    // ✅ Nouvelle méthode simplifiée et corrigée d'upload de fichiers
     @PostMapping("/battlereport/{id}/photos")
     public ResponseEntity<List<String>> uploadBattleReportPhotos(
             @PathVariable("id") int battleReportId,
@@ -45,10 +44,8 @@ public class BattleReportController {
                         try {
                             String fileName = UUID.randomUUID().toString();
 
-                            // Upload vers S3 via le service
                             s3Service.uploadFile(fileName, file.getInputStream(), file.getSize(), file.getContentType());
 
-                            // Enregistrement en base
                             BattleReportPhoto photo = new BattleReportPhoto();
                             photo.setNameBattleReportPhoto(fileName);
                             photo.setBattleReport_idBattleReport(battleReportId);
@@ -75,7 +72,7 @@ public class BattleReportController {
             return BattleReportRepository.findAll();
         } catch (SQLException e) {
             e.printStackTrace();
-            return List.of(); // Plus moderne que Collections.emptyList()
+            return List.of();
         }
     }
 
@@ -95,14 +92,13 @@ public class BattleReportController {
             return BattleReportRepository.findByUserId(idUser);
         } catch (SQLException e) {
             e.printStackTrace();
-            return List.of(); // Plus moderne que Collections.emptyList()
+            return List.of();
         }
     }
 
     @PostMapping("/battlereport")
     public BattleReport createBattleReport(@RequestBody BattleReport battleReport) {
         try {
-            // ✅ CORRECTION: Supprimer la duplication - la création des photos est déjà gérée dans BattleReportRepository.create()
             int idBattleReport = BattleReportRepository.create(battleReport);
             return BattleReportRepository.findById(idBattleReport);
         } catch (SQLException e) {
@@ -129,13 +125,11 @@ public class BattleReportController {
     @DeleteMapping("/battlereport/{id}")
     public ResponseEntity<String> deleteBattleReport(@PathVariable int id) {
         try {
-            // Récupérer et supprimer les photos de S3 avec le service
             BattleReportPhotoRepository.findByBattleReportId(id)
                     .forEach(photo -> {
                         try {
                             s3Service.deleteFile(photo.getNameBattleReportPhoto());
                         } catch (Exception e) {
-                            // Log l'erreur mais continue la suppression
                             e.printStackTrace();
                         }
                     });
@@ -162,10 +156,8 @@ public class BattleReportController {
         try {
             photoFileNamesToDelete.forEach(fileName -> {
                 try {
-                    // Supprimer l'image de S3 via le service
                     s3Service.deleteFile(fileName);
 
-                    // Supprimer l'entrée correspondante dans la base
                     BattleReportPhoto photoToDelete = BattleReportPhotoRepository
                             .findByFileNameAndBattleReportId(fileName, battleReportId);
                     if (photoToDelete != null) {

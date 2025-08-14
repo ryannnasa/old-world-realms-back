@@ -18,7 +18,6 @@ public class BattleReportPhotoRepository {
     private static final QueryRunner queryRunner = new QueryRunner();
     private static final DatabaseSingleton db = DatabaseSingleton.getInstance();
 
-    // Handler réutilisable pour éviter la duplication
     private static final ResultSetHandler<List<BattleReportPhoto>> listHandler =
             new BeanListHandler<>(BattleReportPhoto.class);
 
@@ -57,7 +56,6 @@ public class BattleReportPhotoRepository {
         });
     }
 
-    // Méthode pour utiliser une connexion existante
     public static List<BattleReportPhoto> findByBattleReportId(int idBattleReport, Connection conn) throws SQLException {
         return queryRunner.query(conn,
             "SELECT * FROM battlereportphoto WHERE battleReport_idBattleReport = ?",
