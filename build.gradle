@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'com.example'
@@ -32,4 +33,85 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacoco {
+	toolVersion = "0.8.10"
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		csv.required = false
+		html.required = true
+		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+	}
+	
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, excludes: [
+				// Models non utilisés
+				'**/model/UnitType.class',
+				'**/model/UnitPhoto.class',
+				'**/model/UnitName.class',
+				'**/model/UnitDescription.class',
+				'**/model/Unit.class',
+				'**/model/TroopType.class',
+				'**/model/PrincipalUnitName.class',
+				'**/model/PointsTypeHasUnit.class',
+				'**/model/PointsTypeHasMountUnit.class',
+				'**/model/PointsType.class',
+				'**/model/PointsCases.class',
+				'**/model/MountUnit.class',
+				'**/model/MountRule.class',
+				'**/model/MountedUnitPhoto.class',
+				'**/model/MountDescription.class',
+				'**/model/Mount.class',
+				'**/model/MainTroopType.class',
+				'**/model/AttachedUnit.class',
+				
+				// Controllers non utilisés
+				'**/controller/UnitTypeController.class',
+				'**/controller/UnitPhotoController.class',
+				'**/controller/UnitNameController.class',
+				'**/controller/UnitDescriptionController.class',
+				'**/controller/UnitController.class',
+				'**/controller/TroopTypeController.class',
+				'**/controller/PrincipalUnitNameController.class',
+				'**/controller/PointsTypeHasUnitController.class',
+				'**/controller/PointsTypeHasMountUnitController.class',
+				'**/controller/PointsTypeController.class',
+				'**/controller/PointsCasesController.class',
+				'**/controller/MountUnitController.class',
+				'**/controller/MountRuleController.class',
+				'**/controller/MountedUnitPhotoController.class',
+				'**/controller/MountDescriptionController.class',
+				'**/controller/MountController.class',
+				'**/controller/MainTroopTypeController.class',
+				'**/controller/AttachedUnitController.class',
+				
+				// Repositories non utilisés
+				'**/repository/UnitTypeRepository.class',
+				'**/repository/UnitPhotoRepository.class',
+				'**/repository/UnitNameRepository.class',
+				'**/repository/UnitDescriptionRepository.class',
+				'**/repository/UnitRepository.class',
+				'**/repository/TroopTypeRepository.class',
+				'**/repository/PrincipalUnitNameRepository.class',
+				'**/repository/PointsTypeHasUnitRepository.class',
+				'**/repository/PointsTypeHasMountUnitRepository.class',
+				'**/repository/PointsTypeRepository.class',
+				'**/repository/PointsCasesRepository.class',
+				'**/repository/MountUnitRepository.class',
+				'**/repository/MountRuleRepository.class',
+				'**/repository/MountedUnitPhotoRepository.class',
+				'**/repository/MountDescriptionRepository.class',
+				'**/repository/MountRepository.class',
+				'**/repository/MainTroopTypeRepository.class',
+				'**/repository/AttachedUnitRepository.class'
+			])
+		}))
+	}
 }
