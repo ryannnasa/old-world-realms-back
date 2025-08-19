@@ -3,6 +3,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.5'
 	id 'java'
 	id 'jacoco'
+	id 'org.owasp.dependencycheck' version '9.0.9'
+	id 'com.github.spotbugs' version '5.2.5'
 }
 
 group = 'com.example'
@@ -23,12 +25,21 @@ dependencies {
 	implementation 'software.amazon.awssdk:s3:2.20.150'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.686'
 
+	// Sécurité
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Plugin SpotBugs pour la sécurité
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+
 	// Dépendances de test supplémentaires
 	testImplementation 'com.h2database:h2:2.2.224'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation 'org.mockito:mockito-junit-jupiter'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 test {
@@ -114,4 +125,48 @@ jacocoTestReport {
 			])
 		}))
 	}
+}
+
+// Configuration OWASP Dependency Check
+dependencyCheck {
+	format = 'ALL'
+	suppressionFile = 'owasp-suppressions.xml'
+	failBuildOnCVSS = 7
+	analyzers {
+		experimentalEnabled = false
+		archiveEnabled = true
+		jarEnabled = true
+		centralEnabled = true
+		nexusEnabled = false
+	}
+}
+
+// Configuration SpotBugs
+spotbugs {
+	ignoreFailures = true
+	showStackTraces = true
+	showProgress = true
+	reportLevel = 'medium'
+	effort = 'max'
+}
+
+spotbugsMain {
+	reports {
+		html {
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/main.html")
+		}
+	}
+}
+
+// Tâche de sécurité globale
+task securityCheck {
+	dependsOn 'dependencyCheckAnalyze', 'spotbugsMain'
+	group = 'verification'
+	description = 'Lance tous les contrôles de sécurité'
+}
+
+// Configuration pour exclure les modèles non utilisés des rapports de sécurité
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+	excludeFilter = file('spotbugs-exclude.xml')
 }

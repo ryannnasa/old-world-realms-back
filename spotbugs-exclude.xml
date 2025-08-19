@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclusions pour les classes non utilisées -->
+    <Match>
+        <Class name="~.*\.model\.(UnitType|UnitPhoto|UnitName|UnitDescription|Unit|TroopType|PrincipalUnitName|PointsTypeHasUnit|PointsTypeHasMountUnit|PointsType|PointsCases|MountUnit|MountRule|MountedUnitPhoto|MountDescription|Mount|MainTroopType|AttachedUnit)"/>
+    </Match>
+
+    <Match>
+        <Class name="~.*\.controller\.(UnitTypeController|UnitPhotoController|UnitNameController|UnitDescriptionController|UnitController|TroopTypeController|PrincipalUnitNameController|PointsTypeHasUnitController|PointsTypeHasMountUnitController|PointsTypeController|PointsCasesController|MountUnitController|MountRuleController|MountedUnitPhotoController|MountDescriptionController|MountController|MainTroopTypeController|AttachedUnitController)"/>
+    </Match>
+
+    <Match>
+        <Class name="~.*\.repository\.(UnitTypeRepository|UnitPhotoRepository|UnitNameRepository|UnitDescriptionRepository|UnitRepository|TroopTypeRepository|PrincipalUnitNameRepository|PointsTypeHasUnitRepository|PointsTypeHasMountUnitRepository|PointsTypeRepository|PointsCasesRepository|MountUnitRepository|MountRuleRepository|MountedUnitPhotoRepository|MountDescriptionRepository|MountRepository|MainTroopTypeRepository|AttachedUnitRepository)"/>
+    </Match>
+
+    <!-- Exclusion des bugs SpotBugs peu pertinents -->
+    <Match>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="DM_FINALIZER"/>
+    </Match>
+</FindBugsFilter>

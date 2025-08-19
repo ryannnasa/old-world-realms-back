@@ -87,4 +87,15 @@ public class S3Service {
     public String getPresignedUrl(String fileName) {
         return getPresignedUrl(fileName, Duration.ofMinutes(15));
     }
+
+    public boolean testConnection() {
+        try {
+            s3Client.headBucket(HeadBucketRequest.builder()
+                    .bucket(bucketName)
+                    .build());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
