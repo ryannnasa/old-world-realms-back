@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: old-world-realms-backend-config
+  namespace: default
+data:
+  application.properties: |
+    # Configuration pour l'environnement de production
+    server.port=8080
+    spring.profiles.active=production
+    
+    # Configuration CORS
+    cors.allowed-origins=https://oldworldrealms.app
+    cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+    cors.allowed-headers=*
+    cors.allow-credentials=true
+    
+    # Configuration S3
+    aws.s3.bucket-name=old-world-realms-bucket
+    aws.s3.region=eu-west-3
+    
+    # Configuration de logging
+    logging.level.com.example.restservice=INFO
+    logging.level.org.springframework.security=INFO
+    
+    # Actuator endpoints
+    management.endpoints.web.exposure.include=health,info,metrics
+    management.endpoint.health.show-details=when-authorized
+

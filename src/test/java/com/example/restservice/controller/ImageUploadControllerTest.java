@@ -37,6 +37,9 @@ class ImageUploadControllerTest {
     private SecurityMonitoringService securityService;
 
     @Mock
+    private BattleReportPhotoRepository battleReportPhotoRepository;
+
+    @Mock
     private MultipartFile multipartFile;
 
     @InjectMocks

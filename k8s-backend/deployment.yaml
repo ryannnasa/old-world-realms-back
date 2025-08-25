@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: old-world-realms-backend
+  labels:
+    app: old-world-realms-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: old-world-realms-backend
+  template:
+    metadata:
+      labels:
+        app: old-world-realms-backend
+    spec:
+      containers:
+        - name: old-world-realms-backend
+          image: maximerobin44/old-world-realms-backend:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "production"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secrets
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-secrets
+                  key: secret-access-key
+            - name: AWS_REGION
+              value: "eu-west-3"
+            - name: S3_BUCKET_NAME
+              value: "old-world-realms-bucket"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
